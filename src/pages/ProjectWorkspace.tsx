@@ -155,6 +155,8 @@ export default function ProjectWorkspace({
       </div>
       <div
         className="module-content"
+        id="project-module-content"
+        tabIndex={-1}
         role="tabpanel"
         aria-label={
           module === "data"

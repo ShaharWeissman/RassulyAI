@@ -184,6 +184,13 @@ export default function App() {
                 onModule={(m) => {
                   setModule(m);
                   setNotice("");
+                  requestAnimationFrame(() => {
+                    const content = document.getElementById(
+                      "project-module-content",
+                    );
+                    content?.focus({ preventScroll: true });
+                    content?.scrollIntoView({ block: "start" });
+                  });
                 }}
                 onOpen={openProject}
                 onProjectSave={saveProject}

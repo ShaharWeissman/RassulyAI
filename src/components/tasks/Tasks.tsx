@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { RequirementTask, TaskStatus } from "../../types";
-import { Badge, Field, Modal, Options, Table } from "../ui";
+import { Badge, Empty, Field, Modal, Options, Table } from "../ui";
 const statuses: TaskStatus[] = ["פתוח", "בטיפול", "הושלם", "באיחור"];
 export default function Tasks({
   projectId,
@@ -24,34 +24,38 @@ export default function Tasks({
             + משימה חדשה
           </button>
         </div>
-        <Table
-          caption="משימות הפרויקט"
-          headers={["משימה", "אחראי", "עדיפות", "תאריך יעד", "סטטוס", "הערה"]}
-        >
-          {tasks.map((t) => (
-            <tr key={t.id}>
-              <td className="strong">{t.title}</td>
-              <td>{t.assignee}</td>
-              <td>
-                <Badge>{t.priority}</Badge>
-              </td>
-              <td className="numeric">{t.due_date}</td>
-              <td>
-                <select
-                  className="table-select"
-                  aria-label={`סטטוס ${t.title}`}
-                  value={t.status}
-                  onChange={(e) =>
-                    onSave({ ...t, status: e.target.value as TaskStatus })
-                  }
-                >
-                  <Options values={statuses} />
-                </select>
-              </td>
-              <td>{t.note || "—"}</td>
-            </tr>
-          ))}
-        </Table>
+        {!tasks.length ? (
+          <Empty text="אין משימות בפרויקט הזה. אפשר להוסיף משימה באמצעות הכפתור למעלה." />
+        ) : (
+          <Table
+            caption="משימות הפרויקט"
+            headers={["משימה", "אחראי", "עדיפות", "תאריך יעד", "סטטוס", "הערה"]}
+          >
+            {tasks.map((t) => (
+              <tr key={t.id}>
+                <td className="strong">{t.title}</td>
+                <td>{t.assignee}</td>
+                <td>
+                  <Badge>{t.priority}</Badge>
+                </td>
+                <td className="numeric">{t.due_date}</td>
+                <td>
+                  <select
+                    className="table-select"
+                    aria-label={`סטטוס ${t.title}`}
+                    value={t.status}
+                    onChange={(e) =>
+                      onSave({ ...t, status: e.target.value as TaskStatus })
+                    }
+                  >
+                    <Options values={statuses} />
+                  </select>
+                </td>
+                <td>{t.note || "—"}</td>
+              </tr>
+            ))}
+          </Table>
+        )}
       </section>
       {adding && (
         <Modal title="משימה חדשה" onClose={() => setAdding(false)}>

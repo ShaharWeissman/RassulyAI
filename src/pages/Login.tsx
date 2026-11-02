@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Field, Icon } from "../components/ui";
+import CompanyBrand from "../components/ui/CompanyBrand";
 import { authenticateDemo, demoWorkers } from "../data/auth";
 import type { Worker } from "../types";
 export default function Login({
@@ -14,11 +15,7 @@ export default function Login({
     <main className="login-page">
       <section className="login-intro">
         <div className="wordmark" dir="ltr">
-          <img
-            className="company-logo login-company-logo"
-            src="/rassuly-logo.png"
-            alt="מנשה רסולי — הנדסה אזרחית בע״מ"
-          />
+          <CompanyBrand className="login-company-brand" />
         </div>
         <div>
           <span className="eyebrow">רסולי הנדסה · סביבת העבודה שלך</span>

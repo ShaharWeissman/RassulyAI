@@ -1,5 +1,6 @@
 import type { Worker } from "../../types";
 import { Icon } from "./index";
+import CompanyBrand from "./CompanyBrand";
 
 const links = [
   { id: "dashboard", label: "פרויקטים", icon: "building" },
@@ -73,11 +74,7 @@ export default function AppHeader({
           יציאה
         </button>
       </div>
-      <img
-        className="topbar-brand"
-        src="/rassuly-logo.png"
-        alt="מנשה רסולי — הנדסה אזרחית בע״מ"
-      />
+      <CompanyBrand className="topbar-brand" />
     </header>
   );
 }
