@@ -1,0 +1,7 @@
+node_modules/
+.corepack/
+*.tsbuildinfo
+dist/
+*.local
+.env*
+!.env.example
