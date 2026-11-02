@@ -65,6 +65,25 @@ export default function ProjectWorkspace({
           </button>
         ))}
       </div>
+      <div className="module-tabs" role="tablist" aria-label="מודולי פרויקט">
+        {[
+          ["data", "נתוני פרויקט"],
+          ["costs", "עלויות פרויקט"],
+          ["tasks", "משימות"],
+          ["protocols", "פרוטוקולים"],
+          ["office", "סטטוס פרויקט משרדית"],
+        ].map(([id, title]) => (
+          <button
+            role="tab"
+            aria-selected={module === id}
+            className={module === id ? "active" : ""}
+            key={id}
+            onClick={() => onModule(id)}
+          >
+            {title}
+          </button>
+        ))}
+      </div>
       <div className="page-heading project-heading">
         <div>
           <span className="eyebrow">
@@ -134,25 +153,6 @@ export default function ProjectWorkspace({
           </dd>
         </div>
       </dl>
-      <div className="module-tabs" role="tablist" aria-label="מודולי פרויקט">
-        {[
-          ["data", "נתוני פרויקט"],
-          ["costs", "עלויות פרויקט"],
-          ["tasks", "משימות"],
-          ["protocols", "פרוטוקולים"],
-          ["office", "סטטוס פרויקט משרדית"],
-        ].map(([id, title]) => (
-          <button
-            role="tab"
-            aria-selected={module === id}
-            className={module === id ? "active" : ""}
-            key={id}
-            onClick={() => onModule(id)}
-          >
-            {title}
-          </button>
-        ))}
-      </div>
       <div
         className="module-content"
         id="project-module-content"

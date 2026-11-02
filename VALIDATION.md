@@ -16,3 +16,5 @@ After the reference-based restyle, login, project navigation, budget/date summar
 The compact company badge now follows the latest supplied reference with readable text and three teal bars. The tasks tab was checked in Nave's portfolio: projects with no tasks show an explicit empty state and an add-task button. Module selection focuses and scrolls to the requested content while keeping the module navigation available.
 
 Following the user's clarification, the full company name is shown on the main dashboard and login, and internal pages use the symbol alone as a home-navigation button. The internal-page symbol-only state was visually verified in the browser.
+
+Project module tabs now appear directly after open-project tabs, above the project heading and summary. Their top placement was verified visually in the browser; build, TypeScript and lint pass.
