@@ -65,6 +65,25 @@
   background: #eff5f4;
   border-radius: 34px;
 }
+.reference-topbar .brand-home {
+  order: -1;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  flex-shrink: 0;
+}
+.reference-topbar .brand-home:hover {
+  background: transparent;
+  border: 0;
+}
+.company-brand.company-brand-icon.topbar-brand {
+  width: 58px;
+  min-width: 58px;
+  height: 54px;
+  padding: 8px;
+  border-radius: 14px;
+}
 .company-brand.login-company-brand {
   width: 250px;
   height: 70px;

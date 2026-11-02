@@ -14,3 +14,5 @@ The supplied company logo is served from `public/rassuly-logo.png`. Login creden
 After the reference-based restyle, login, project navigation, budget/date summaries and mobile layout were verified again in the browser. The original module structure is retained; the reference's contractor accounts screen is not introduced as an extra module by this visual update.
 
 The compact company badge now follows the latest supplied reference with readable text and three teal bars. The tasks tab was checked in Nave's portfolio: projects with no tasks show an explicit empty state and an add-task button. Module selection focuses and scrolls to the requested content while keeping the module navigation available.
+
+Following the user's clarification, the full company name is shown on the main dashboard and login, and internal pages use the symbol alone as a home-navigation button. The internal-page symbol-only state was visually verified in the browser.

@@ -34,6 +34,7 @@ The production bundle is generated in `dist/`. The mock has no environment varia
 - Two demonstration accounts with separate assigned project lists based on the supplied workbooks. The name, email, project tabs, task lists, office status, mileage and leave requests follow the signed-in user. Logging out clears navigation and open project tabs.
 - The supplied Rassuly logo appears in the login screen, navigation and desktop header.
 - A compact company badge matches the latest supplied logo treatment. Module navigation moves directly to the selected content; empty task lists show a clear message and an add-task action.
+- The main dashboard shows the company symbol with its name; internal pages show only the three-bar symbol. The brand is a menu action that returns to the main dashboard.
 - The workspace follows the supplied visual reference: full-width dark top navigation, browser-style project tabs, a white project title area with a six-field summary, underlined module tabs and spacious bordered tables. The same modules remain available on mobile.
 - Workspace with open-project tabs and a + project picker. Project name is the page title; data is the default module.
 - Read-only project data with an explicit edit dialog: client, status, current stage and type. Stages are a fixed dropdown; progression is stage-based.

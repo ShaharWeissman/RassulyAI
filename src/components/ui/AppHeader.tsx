@@ -74,7 +74,16 @@ export default function AppHeader({
           יציאה
         </button>
       </div>
-      <CompanyBrand className="topbar-brand" />
+      <button
+        className="brand-home"
+        onClick={() => onNavigate("dashboard")}
+        aria-label="חזרה למסך הראשי"
+      >
+        <CompanyBrand
+          className="topbar-brand"
+          symbolOnly={page !== "dashboard"}
+        />
+      </button>
     </header>
   );
 }

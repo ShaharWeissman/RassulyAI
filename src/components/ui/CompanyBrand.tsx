@@ -1,11 +1,13 @@
 export default function CompanyBrand({
   className = "",
+  symbolOnly = false,
 }: {
   className?: string;
+  symbolOnly?: boolean;
 }) {
   return (
     <span
-      className={`company-brand ${className}`}
+      className={`company-brand ${symbolOnly ? "company-brand-icon" : ""} ${className}`}
       role="img"
       aria-label="מנשה רסולי — הנדסה אזרחית בע״מ"
     >
@@ -14,10 +16,12 @@ export default function CompanyBrand({
         <i />
         <i />
       </span>
-      <span className="company-brand-copy" aria-hidden="true">
-        <strong>מנשה רסולי</strong>
-        <small>הנדסה אזרחית בע״מ</small>
-      </span>
+      {!symbolOnly && (
+        <span className="company-brand-copy" aria-hidden="true">
+          <strong>מנשה רסולי</strong>
+          <small>הנדסה אזרחית בע״מ</small>
+        </span>
+      )}
     </span>
   );
 }
