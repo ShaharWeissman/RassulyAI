@@ -1,109 +1,58 @@
-import type { AppData } from "../types";
-export const currentWorkerId = "worker-1";
+import type { AppData, Project, OfficeProjectStatus } from "../types";
+import { demoWorkers } from "./auth";
+import portfolio from "./portfolioData.json";
+
+// Only the main portfolio sheet from each supplied workbook is imported.
 export const mockData: AppData = {
-  workers: [
-    { id: currentWorkerId, name: "שחר וייסמן", email: "shahar@example.com" },
-  ],
-  projects: [
-    {
-      id: "p1",
-      name: "שיבא נוירו",
-      client: "שיבא תל השומר",
-      status: "פעיל",
-      current_stage: "ביצוע שוטף",
-      project_type: "ביצוע",
-      code: "PR-2401",
-    },
-    {
-      id: "p2",
-      name: "איתנים",
-      client: "המרכז לבריאות הנפש איתנים",
-      status: "פעיל",
-      current_stage: "תכנון מפורט",
-      project_type: "תכנון",
-      code: "PR-2402",
-    },
-    {
-      id: "p3",
-      name: "אלרגיה",
-      client: "שיבא תל השומר",
-      status: "פעיל",
-      current_stage: "מכרז",
-      project_type: "ביצוע",
-      code: "PR-2403",
-    },
-    {
-      id: "p4",
-      name: "מיון",
-      client: "שיבא תל השומר",
-      status: "בהמתנה",
-      current_stage: "מסירות",
-      project_type: "ביצוע",
-      code: "PR-2404",
-    },
-  ],
-  project_assignments: ["p1", "p2", "p3", "p4"].map((project_id) => ({
-    project_id,
-    worker_id: currentWorkerId,
-  })),
+  workers: demoWorkers,
+  projects: portfolio.projects as Project[],
+  project_assignments: portfolio.assignments,
+  office_project_status: portfolio.statuses as OfficeProjectStatus[],
   project_status_updates: [],
-  office_project_status: ["p1", "p2", "p3", "p4"].map((project_id, i) => ({
-    project_id,
-    condition: i === 1 ? "דורש תשומת לב" : "תקין",
-    updated_at: "2026-11-01",
-    short_status: [
-      "עבודות הביצוע מתקדמות לפי התכנון",
-      "ממתינים לאישור תכניות מיזוג",
-      "מסמכי המכרז בבדיקה",
-      "תיאום מסירה מול המזמין",
-    ][i],
-    manager_issue: i === 1 ? "נדרש תיאום מול יועץ המיזוג" : "",
-  })),
-  requirements_tasks: ["p1", "p2", "p3", "p4"].flatMap((project_id) => [
+  requirements_tasks: [
     {
-      id: `${project_id}-t1`,
-      project_id,
+      id: "demo-neuro-1",
+      project_id: "shahar-9",
       title: "תיאום גריד מצלמות",
       assignee: "שחר וייסמן",
-      priority: "גבוהה" as const,
+      priority: "גבוהה",
       due_date: "2026-11-05",
-      status: "בטיפול" as const,
-      note: "תיאום מול יועץ התקשורת",
+      status: "בטיפול",
+      note: "משימת הדגמה",
     },
     {
-      id: `${project_id}-t2`,
-      project_id,
+      id: "demo-neuro-2",
+      project_id: "shahar-9",
       title: "השלמת חלון משרד עינת",
-      assignee: "איתי כהן",
-      priority: "רגילה" as const,
-      due_date: "2026-10-29",
-      status: "באיחור" as const,
-      note: "ממתין למדידה בשטח",
+      assignee: "שחר וייסמן",
+      priority: "רגילה",
+      due_date: "2026-11-10",
+      status: "פתוח",
+      note: "בהתאם לנושא המופיע בסטטוס המשרדי",
     },
     {
-      id: `${project_id}-t3`,
-      project_id,
+      id: "demo-neuro-3",
+      project_id: "shahar-9",
       title: "הגשת דקל ל-SPC",
       assignee: "שחר וייסמן",
-      priority: "רגילה" as const,
+      priority: "רגילה",
       due_date: "2026-11-10",
-      status: "פתוח" as const,
-      note: "",
+      status: "פתוח",
+      note: "בהתאם לנושא המופיע בסטטוס המשרדי",
     },
-  ]),
-  project_costs: ["p1", "p2", "p3", "p4"].flatMap((project_id, p) =>
-    ["בינוי", "חשמל", "מיזוג אוויר", "אינסטלציה", "תקשורת"].map(
-      (chapter, i) => ({
-        id: `${project_id}-c${i}`,
-        project_id,
-        chapter,
-        contractual: (5 - i) * 200000 * (p + 1),
-        approved: (5 - i) * 190000 * (p + 1),
-        actual: (5 - i) * 110000 * (p + 1),
-        exceptions: i === 2 ? 12000 : 0,
-        note: i === 2 ? "שינוי תוואי תעלות לבדיקה" : "לפי חוזה",
-      }),
-    ),
+  ],
+  // Chapter costs are examples, not the source workbook's budget.
+  project_costs: ["בינוי", "חשמל", "מיזוג אוויר", "אינסטלציה", "תקשורת"].map(
+    (chapter, i) => ({
+      id: `demo-cost-${i}`,
+      project_id: "shahar-9",
+      chapter,
+      contractual: (5 - i) * 200000,
+      approved: (5 - i) * 190000,
+      actual: (5 - i) * 110000,
+      exceptions: i === 2 ? 12000 : 0,
+      note: "נתוני עלויות לדוגמה",
+    }),
   ),
   protocols: [],
   vehicles: [
@@ -111,15 +60,5 @@ export const mockData: AppData = {
     { id: "v2", label: "יונדאי איוניק · 234-56-789" },
   ],
   mileage_entries: [],
-  leave_requests: [
-    {
-      id: "leave-1",
-      worker_id: currentWorkerId,
-      kind: "חופשה",
-      from_date: "2026-10-20",
-      to_date: "2026-10-21",
-      note: "",
-      status: "אושר",
-    },
-  ],
+  leave_requests: [],
 };

@@ -4,21 +4,23 @@ export default function Dashboard({
   data,
   onOpen,
   onNavigate,
+  workerName,
 }: {
   data: AppData;
   onOpen: (id: string) => void;
   onNavigate: (page: string) => void;
+  workerName: string;
 }) {
   const openTasks = data.requirements_tasks.filter((t) => t.status !== "הושלם");
-  const attention = data.office_project_status.filter(
-    (s) => s.condition !== "תקין",
+  const attention = data.office_project_status.filter((s) =>
+    ["דורש טיפול", "דורש תשומת לב"].includes(s.condition),
   );
   return (
     <>
       <div className="page-heading">
         <div>
           <span className="eyebrow">סביבת העבודה שלי</span>
-          <h1>שלום, שחר</h1>
+          <h1>שלום, {workerName.split(" ")[0]}</h1>
           <p className="muted">כל הפרויקטים והעדכונים שלך, במבט אחד.</p>
         </div>
         <span className="date-label">
@@ -98,7 +100,9 @@ export default function Dashboard({
                     className={
                       office.condition === "תקין"
                         ? "condition-ok"
-                        : "condition-warning"
+                        : office.condition === "לא סווג"
+                          ? "muted"
+                          : "condition-warning"
                     }
                   >
                     <span className="dot" />
@@ -158,7 +162,7 @@ export default function Dashboard({
       </div>
       <div className="dashboard-footer">
         <span className="dot" />
-        נתוני הדגמה · סביבת עבודה מקומית
+        רשימת הפרויקטים מקובץ הסטטוס שלך · שינויים נשמרים בדפדפן זה
       </div>
     </>
   );

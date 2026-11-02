@@ -30,7 +30,15 @@ export default function OfficeProjectStatus({
       <section className="panel">
         <Table
           caption="סטטוס משרדי לכל הפרויקטים"
-          headers={["פרויקט", "שלב", "סטטוס משרדית", "עדכון אחרון", "פעולה"]}
+          headers={[
+            "פרויקט",
+            "שלב",
+            "סטטוס משרדית",
+            "גורם מעדכן",
+            "יעד לגמר השלב",
+            "עדכון אחרון",
+            "פעולה",
+          ]}
         >
           {data.projects.map((p) => {
             const s = data.office_project_status.find(
@@ -52,7 +60,9 @@ export default function OfficeProjectStatus({
                   <Badge>{s.condition}</Badge>
                   <small className="cell-sub">{s.short_status}</small>
                 </td>
-                <td className="numeric">{s.updated_at}</td>
+                <td>{s.update_owner || "—"}</td>
+                <td className="numeric">{s.stage_due_date || "—"}</td>
+                <td className="numeric">{s.updated_at || "—"}</td>
                 <td>
                   <div className="inline-actions">
                     <button onClick={() => setEditing(p.id)}>עדכון</button>

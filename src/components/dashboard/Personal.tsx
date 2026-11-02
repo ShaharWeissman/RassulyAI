@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { LeaveRequest } from "../../types";
-import { currentWorkerId } from "../../data/mockData";
 import { Badge, Field, Table } from "../ui";
 export default function Personal({
   requests,
   onSave,
+  workerId,
 }: {
   requests: LeaveRequest[];
   onSave: (request: LeaveRequest) => void;
+  workerId: string;
 }) {
   const [kind, setKind] = useState<LeaveRequest["kind"]>("חופשה");
   const [from, setFrom] = useState("");
@@ -35,7 +36,7 @@ export default function Personal({
             const f = new FormData(form);
             onSave({
               id: crypto.randomUUID(),
-              worker_id: currentWorkerId,
+              worker_id: workerId,
               kind,
               from_date: from,
               to_date: String(f.get("to")),

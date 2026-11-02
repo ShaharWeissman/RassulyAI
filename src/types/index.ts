@@ -7,6 +7,8 @@ export const stages = [
   "מסירות",
   "חשבון סופי",
   "שנת בדק",
+  "אחר",
+  "טרם הוגדר",
 ] as const;
 export type Stage = (typeof stages)[number];
 export type ProjectStatus = "פעיל" | "בהמתנה" | "הושלם";
@@ -21,7 +23,7 @@ export interface Project {
   client: string;
   status: ProjectStatus;
   current_stage: Stage;
-  project_type: "תכנון" | "ביצוע";
+  project_type: "תכנון" | "ביצוע" | "";
   code: string;
 }
 export interface ProjectAssignment {
@@ -37,10 +39,19 @@ export interface ProjectStatusUpdate {
 }
 export interface OfficeProjectStatus {
   project_id: string;
-  condition: "תקין" | "דורש תשומת לב" | "דורש טיפול";
+  condition: "תקין" | "דורש תשומת לב" | "דורש טיפול" | "לא סווג";
   updated_at: string;
   short_status: string;
   manager_issue: string;
+  detailed_status: string;
+  stage_due_date: string;
+  budget: number | null;
+  budget_notes: string;
+  update_owner: string;
+  major_issues: string;
+  followup_date: string;
+  manager_notes: string;
+  source: { workbook: string; sheet: string; row: number };
 }
 export type TaskStatus = "פתוח" | "בטיפול" | "הושלם" | "באיחור";
 export interface RequirementTask {

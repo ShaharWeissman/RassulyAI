@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   AppData,
   OfficeProjectStatus as OfficeStatus,
   Project,
+  Worker,
 } from "./types";
-import { currentWorkerId, mockData } from "./data/mockData";
+import { assignedProjectIds } from "./data/auth";
+import { loadWorkspace, saveWorkspace } from "./data/workspaceStorage";
 import { Icon } from "./components/ui";
+import AppHeader from "./components/ui/AppHeader";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProjectWorkspace from "./pages/ProjectWorkspace";
@@ -19,35 +22,48 @@ const navigation = [
   { id: "office", title: "סטטוס פרויקט משרדית", icon: "status" },
 ];
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [data, setData] = useState<AppData>(mockData);
+  const [worker, setWorker] = useState<Worker | null>(null);
+  const currentWorkerId = worker?.id ?? "";
+  const [data, setData] = useState<AppData>(loadWorkspace);
+  const [storageWarning, setStorageWarning] = useState(false);
   const [page, setPage] = useState("dashboard");
-  const [projectId, setProjectId] = useState("p1");
-  const [openIds, setOpenIds] = useState<string[]>(["p1"]);
+  const [projectId, setProjectId] = useState("");
+  const [openIds, setOpenIds] = useState<string[]>([]);
   const [module, setModule] = useState("data");
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    setStorageWarning(!saveWorkspace(data));
+  }, [data]);
+  const assignedIds = assignedProjectIds(data, currentWorkerId);
   const notify = (message = "השינויים נשמרו בהצלחה") => setNotice(message);
   const navigate = (target: string) => {
     setPage(target);
     setNotice("");
+    window.scrollTo({ top: 0 });
   };
   const openProject = (id: string) => {
+    if (!assignedIds.includes(id)) return;
     setProjectId(id);
     setOpenIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
     setPage("project");
     setModule("data");
     setNotice("");
+    window.scrollTo({ top: 0 });
   };
   const saveOffice = (s: OfficeStatus) => {
+    if (!assignedIds.includes(s.project_id)) return;
     setData((d) => ({
       ...d,
       office_project_status: d.office_project_status.map((v) =>
-        v.project_id === s.project_id ? s : v,
+        v.project_id === s.project_id
+          ? { ...s, manager_notes: v.manager_notes, source: v.source }
+          : v,
       ),
     }));
     notify("הסטטוס המשרדי עודכן בכל המסכים");
   };
   const saveProject = (p: Project) => {
+    if (!assignedIds.includes(p.id)) return;
     setData((d) => ({
       ...d,
       projects: d.projects.map((v) => (v.id === p.id ? p : v)),
@@ -67,16 +83,24 @@ export default function App() {
     }));
     notify();
   };
-  const assignedIds = data.project_assignments
-    .filter((a) => a.worker_id === currentWorkerId)
-    .map((a) => a.project_id);
   const userData = {
     ...data,
+    workers: data.workers.filter((w) => w.id === currentWorkerId),
+    project_assignments: data.project_assignments.filter(
+      (a) => a.worker_id === currentWorkerId,
+    ),
     projects: data.projects.filter((p) => assignedIds.includes(p.id)),
     requirements_tasks: data.requirements_tasks.filter((t) =>
       assignedIds.includes(t.project_id),
     ),
     office_project_status: data.office_project_status.filter((s) =>
+      assignedIds.includes(s.project_id),
+    ),
+    project_costs: data.project_costs.filter((c) =>
+      assignedIds.includes(c.project_id),
+    ),
+    protocols: data.protocols.filter((p) => assignedIds.includes(p.project_id)),
+    project_status_updates: data.project_status_updates.filter((s) =>
       assignedIds.includes(s.project_id),
     ),
     mileage_entries: data.mileage_entries.filter(
@@ -86,12 +110,17 @@ export default function App() {
       (l) => l.worker_id === currentWorkerId,
     ),
   };
-  if (!loggedIn)
+  if (!worker)
     return (
       <Login
-        onLogin={() => {
-          setLoggedIn(true);
+        onLogin={(selected) => {
+          setWorker(selected);
+          setProjectId("");
+          setOpenIds([]);
+          setModule("data");
+          setNotice("");
           setPage("dashboard");
+          window.scrollTo({ top: 0 });
         }}
       />
     );
@@ -100,85 +129,33 @@ export default function App() {
       ? data.projects.find((p) => p.id === projectId)!.name
       : navigation.find((n) => n.id === page)?.title;
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${page === "project" ? "is-project" : ""}`}>
       <a className="skip-link" href="#main-content">
         דלג לתוכן הראשי
       </a>
-      <aside className="sidebar">
-        <a
-          className="wordmark"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("dashboard");
-          }}
-          dir="ltr"
-        >
-          <span className="logo-symbol">R</span>Rassuly<span>AI</span>
-        </a>
-        <div className="sidebar-label">סביבת עבודה</div>
-        <nav aria-label="ניווט ראשי">
-          {navigation.map((n) => (
-            <button
-              key={n.id}
-              className={
-                page === n.id || (n.id === "dashboard" && page === "project")
-                  ? "active"
-                  : ""
-              }
-              onClick={() => navigate(n.id)}
-              aria-current={
-                page === n.id || (n.id === "dashboard" && page === "project")
-                  ? "page"
-                  : undefined
-              }
-            >
-              <Icon name={n.icon} />
-              <span>{n.title}</span>
-              {n.id === "dashboard" && (
-                <span className="nav-count">{userData.projects.length}</span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="user-summary">
-            <span className="avatar">שו</span>
-            <span>
-              <strong>שחר וייסמן</strong>
-              <small>מנהל פרויקטים</small>
-            </span>
-          </div>
-          <button
-            className="logout"
-            onClick={() => {
-              setLoggedIn(false);
-              setNotice("");
-            }}
-          >
-            <Icon name="logout" size={18} />
-            יציאה מהמערכת
-          </button>
-          <div className="demo-tag">גרסת הדגמה · נתונים מקומיים</div>
-        </div>
-      </aside>
+
       <div className="main-shell">
-        <header className="topbar">
-          <div className="breadcrumbs">
-            <span>סביבת העבודה שלי</span>
-            <span>/</span>
-            <strong>{title}</strong>
-          </div>
-          <div className="topbar-identity">
-            <span className="system-indicator">
-              <span className="dot" />
-              רסולי הנדסה
-            </span>
-            <span className="avatar small">שו</span>
-          </div>
-        </header>
+        <AppHeader
+          worker={worker}
+          page={page}
+          title={title}
+          onNavigate={navigate}
+          onLogout={() => {
+            setWorker(null);
+            setPage("dashboard");
+            setProjectId("");
+            setOpenIds([]);
+            setNotice("");
+            window.scrollTo({ top: 0 });
+          }}
+        />
         <main id="main-content" tabIndex={-1}>
           <div className="content-wrap">
+            {storageWarning && (
+              <p role="alert" className="error">
+                השמירה בדפדפן אינה זמינה. השינויים יישמרו רק עד רענון העמוד.
+              </p>
+            )}
             {notice && (
               <div className="notice" role="status">
                 <Icon name="check" size={18} />
@@ -191,6 +168,7 @@ export default function App() {
             {page === "dashboard" && (
               <Dashboard
                 data={userData}
+                workerName={worker.name}
                 onOpen={openProject}
                 onNavigate={navigate}
               />
@@ -200,6 +178,7 @@ export default function App() {
                 key={projectId}
                 data={userData}
                 projectId={projectId}
+                workerName={worker.name}
                 openIds={openIds}
                 module={module}
                 onModule={(m) => {
@@ -210,6 +189,7 @@ export default function App() {
                 onProjectSave={saveProject}
                 onOfficeSave={saveOffice}
                 onTaskSave={(t) => {
+                  if (!assignedIds.includes(t.project_id)) return;
                   setData((d) => ({
                     ...d,
                     requirements_tasks: d.requirements_tasks.some(
@@ -221,6 +201,7 @@ export default function App() {
                   notify();
                 }}
                 onProtocolSave={(p) => {
+                  if (!assignedIds.includes(p.project_id)) return;
                   setData((d) => ({ ...d, protocols: [...d.protocols, p] }));
                   notify("הפרוטוקול נשמר");
                 }}
@@ -246,6 +227,7 @@ export default function App() {
                 </div>
                 <CarReport
                   data={userData}
+                  workerId={worker.id}
                   onSave={(entry) => {
                     setData((d) => ({
                       ...d,
@@ -267,6 +249,7 @@ export default function App() {
                 </div>
                 <Personal
                   requests={userData.leave_requests}
+                  workerId={worker.id}
                   onSave={(request) => {
                     setData((d) => ({
                       ...d,

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { AppData, MileageEntry } from "../../types";
-import { currentWorkerId } from "../../data/mockData";
 import { Field, Table, Empty } from "../ui";
 export default function CarReport({
   data,
   onSave,
+  workerId,
 }: {
   data: AppData;
   onSave: (entry: MileageEntry) => void;
+  workerId: string;
 }) {
   const [error, setError] = useState("");
   return (
@@ -43,7 +44,7 @@ export default function CarReport({
             }
             onSave({
               id: crypto.randomUUID(),
-              worker_id: currentWorkerId,
+              worker_id: workerId,
               vehicle_id,
               month,
               odometer,

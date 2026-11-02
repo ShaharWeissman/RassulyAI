@@ -1,5 +1,5 @@
 import type { ProjectCost } from "../../types";
-import { Table } from "../ui";
+import { Empty, Table } from "../ui";
 const currency = (n: number) =>
   new Intl.NumberFormat("he-IL", {
     style: "currency",
@@ -7,6 +7,13 @@ const currency = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 export default function Costs({ costs }: { costs: ProjectCost[] }) {
+  if (!costs.length)
+    return (
+      <section className="panel padded">
+        <h2>עלויות פרויקט</h2>
+        <Empty text="לא נטען פירוט עלויות לפרויקט זה. אומדן התקציב, אם צוין בקובץ, מופיע בסטטוס המשרדי." />
+      </section>
+    );
   const sum = (key: "contractual" | "approved" | "actual" | "exceptions") =>
     costs.reduce((n, c) => n + c[key], 0);
   return (

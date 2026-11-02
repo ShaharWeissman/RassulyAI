@@ -32,7 +32,7 @@ export default function ProjectData({
         <dl className="project-details">
           <div>
             <dt>מזמין עבודה</dt>
-            <dd>{project.client}</dd>
+            <dd>{project.client || "לא צוין בקובץ"}</dd>
           </div>
           <div>
             <dt>סטטוס</dt>
@@ -46,7 +46,7 @@ export default function ProjectData({
           </div>
           <div>
             <dt>סוג פרויקט</dt>
-            <dd>{project.project_type}</dd>
+            <dd>{project.project_type || "טרם הוגדר"}</dd>
           </div>
         </dl>
       </section>
@@ -54,19 +54,21 @@ export default function ProjectData({
         <span className="eyebrow">מחזור חיי הפרויקט</span>
         <h2>{project.current_stage}</h2>
         <div className="stage-track">
-          {stages.map((s, i) => (
+          {stages.slice(0, 8).map((s, i) => (
             <div
               key={s}
               className={
                 s === project.current_stage
                   ? "current"
-                  : i < stages.indexOf(project.current_stage)
+                  : stages.indexOf(project.current_stage) < 8 &&
+                      i < stages.indexOf(project.current_stage)
                     ? "past"
                     : ""
               }
             >
               <span>
-                {i < stages.indexOf(project.current_stage) ? (
+                {stages.indexOf(project.current_stage) < 8 &&
+                i < stages.indexOf(project.current_stage) ? (
                   <Icon name="check" size={13} />
                 ) : (
                   i + 1
@@ -89,7 +91,6 @@ export default function ProjectData({
           >
             <Field label="מזמין עבודה" className="full">
               <input
-                required
                 value={draft.client}
                 onChange={(e) => setDraft({ ...draft, client: e.target.value })}
               />
@@ -130,6 +131,7 @@ export default function ProjectData({
                   })
                 }
               >
+                <option value="">טרם הוגדר</option>
                 <Options values={["תכנון", "ביצוע"]} />
               </select>
             </Field>

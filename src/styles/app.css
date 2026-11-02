@@ -1,6 +1,102 @@
 * {
   box-sizing: border-box;
 }
+
+.company-logo {
+  display: block;
+  object-fit: contain;
+  height: auto;
+}
+.sidebar-company-logo {
+  width: 182px;
+  max-width: 100%;
+}
+.login-company-logo {
+  width: 250px;
+  max-width: 100%;
+  background: white;
+  border-radius: 6px;
+  padding: 10px;
+}
+.header-company-logo {
+  width: 100px;
+  height: 38px;
+  object-fit: contain;
+}
+.account-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+}
+.account-identity small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.header-logout {
+  min-height: 30px;
+  font-size: 11px;
+  padding: 5px 10px;
+}
+.login-accounts {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 24px;
+}
+.login-accounts button {
+  justify-content: flex-start;
+  text-align: start;
+  padding: 13px;
+  gap: 12px;
+}
+.login-accounts button.active {
+  color: var(--teal);
+  background: var(--soft);
+  border-color: var(--teal);
+}
+.login-accounts strong,
+.login-accounts small {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .topbar .breadcrumbs {
+    display: none;
+  }
+  .topbar .topbar-identity {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .topbar .topbar-identity .system-indicator {
+    display: none;
+  }
+  .topbar .header-company-logo {
+    width: 92px;
+    height: 32px;
+  }
+  .account-identity small {
+    font-size: 9px;
+  }
+}
+.login-accounts strong {
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.login-accounts small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.badge.neutral {
+  background: #eef2f2;
+  color: #64716f;
+}
+.source-note {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+}
 body {
   margin: 0;
   font-size: 14px;

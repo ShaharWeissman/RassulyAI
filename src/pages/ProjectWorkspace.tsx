@@ -23,6 +23,7 @@ export default function ProjectWorkspace({
   onOfficeSave,
   onTaskSave,
   onProtocolSave,
+  workerName,
 }: {
   data: AppData;
   projectId: string;
@@ -34,6 +35,7 @@ export default function ProjectWorkspace({
   onOfficeSave: (s: OfficeProjectStatus) => void;
   onTaskSave: (t: RequirementTask) => void;
   onProtocolSave: (p: Protocol) => void;
+  workerName: string;
 }) {
   const [picker, setPicker] = useState(false);
   const p = data.projects.find((p) => p.id === projectId)!;
@@ -41,14 +43,14 @@ export default function ProjectWorkspace({
     (s) => s.project_id === projectId,
   )!;
   return (
-    <>
+    <div className="project-workspace">
       <div className="project-tabs" role="tablist" aria-label="פרויקטים פתוחים">
         <button
           className="add-project"
           aria-label="הוספה או פתיחה של פרויקט נוסף"
           onClick={() => setPicker(true)}
         >
-          +
+          + פתח פרויקט
         </button>
         {openIds.map((id) => (
           <button
@@ -58,6 +60,7 @@ export default function ProjectWorkspace({
             className={id === projectId ? "active" : ""}
             onClick={() => onOpen(id)}
           >
+            <span className="project-tab-dot" />
             {data.projects.find((p) => p.id === id)?.name}
           </button>
         ))}
@@ -67,14 +70,70 @@ export default function ProjectWorkspace({
           <span className="eyebrow">
             פרויקט <bdi>{p.code}</bdi> / {p.client}
           </span>
-          <h1>{p.name}</h1>
+          <div className="project-title-line">
+            <h1>{p.name}</h1>
+            <Badge>{p.status}</Badge>
+          </div>
           <p className="muted">
-            {p.project_type} <span className="separator">/</span>{" "}
-            {p.current_stage}
+            מזמין עבודה: {p.client || "לא צוין בקובץ"} · מנהל פרויקט:{" "}
+            {workerName}
           </p>
         </div>
-        <Badge>{p.status}</Badge>
+        <div className="project-heading-actions">
+          <button className="primary" onClick={() => onModule("office")}>
+            עדכון סטטוס
+          </button>
+          <button onClick={() => onModule("data")}>נתוני פרויקט</button>
+        </div>
       </div>
+      <dl className="workspace-summary">
+        <div>
+          <dt>סטטוס כללי</dt>
+          <dd>{office.short_status || p.current_stage}</dd>
+        </div>
+        <div>
+          <dt>לו״ז לגמר השלב</dt>
+          <dd className="numeric">
+            {office.stage_due_date
+              ? new Intl.DateTimeFormat("he-IL").format(
+                  new Date(`${office.stage_due_date}T12:00:00`),
+                )
+              : "טרם נקבע"}
+          </dd>
+        </div>
+        <div>
+          <dt>אומדן / תקציב לביצוע</dt>
+          <dd>
+            {office.budget === null
+              ? "לא צוין"
+              : new Intl.NumberFormat("he-IL", {
+                  style: "currency",
+                  currency: "ILS",
+                  maximumFractionDigits: 0,
+                }).format(office.budget)}
+          </dd>
+        </div>
+        <div>
+          <dt>הגורם הנדרש לעדכן</dt>
+          <dd>{office.update_owner || workerName}</dd>
+        </div>
+        <div>
+          <dt>עדכון אחרון</dt>
+          <dd className="numeric">
+            {office.updated_at
+              ? new Intl.DateTimeFormat("he-IL").format(
+                  new Date(`${office.updated_at}T12:00:00`),
+                )
+              : "טרם עודכן"}
+          </dd>
+        </div>
+        <div>
+          <dt>מצב משרדי</dt>
+          <dd>
+            <Badge>{office.condition}</Badge>
+          </dd>
+        </div>
+      </dl>
       <div className="module-tabs" role="tablist" aria-label="מודולי פרויקט">
         {[
           ["data", "נתוני פרויקט"],
@@ -169,6 +228,6 @@ export default function ProjectWorkspace({
           </div>
         </Modal>
       )}
-    </>
+    </div>
   );
 }

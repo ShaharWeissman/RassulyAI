@@ -69,13 +69,16 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
 }
 export function Badge({ children }: { children: ReactNode }) {
   const text = String(children);
-  const tone = ["באיחור", "דורש טיפול"].includes(text)
-    ? "danger"
-    : ["בהמתנה", "ממתין לאישור", "דורש תשומת לב", "גבוהה"].includes(text)
-      ? "warning"
-      : ["פעיל", "הושלם", "אושר", "תקין"].includes(text)
-        ? "success"
-        : "info";
+  const tone =
+    text === "לא סווג"
+      ? "neutral"
+      : ["באיחור", "דורש טיפול"].includes(text)
+        ? "danger"
+        : ["בהמתנה", "ממתין לאישור", "דורש תשומת לב", "גבוהה"].includes(text)
+          ? "warning"
+          : ["פעיל", "הושלם", "אושר", "תקין"].includes(text)
+            ? "success"
+            : "info";
   return (
     <span className={`badge ${tone}`}>
       <span className="dot" />
