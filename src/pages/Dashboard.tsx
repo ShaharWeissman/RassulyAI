@@ -1,5 +1,6 @@
 import type { AppData } from "../types";
 import { Badge, Icon } from "../components/ui";
+import ExportProjectsButton from "../components/ui/ExportProjectsButton";
 export default function Dashboard({
   data,
   onOpen,
@@ -67,7 +68,10 @@ export default function Dashboard({
             </h2>
             <p className="muted">בחירת פרויקט תפתח את סביבת העבודה שלו.</p>
           </div>
-          <span className="subtle-label">משויך אליי</span>
+          <div className="inline-actions">
+            <ExportProjectsButton data={data} />
+            <span className="subtle-label">משויך אליי</span>
+          </div>
         </div>
         <div className="project-grid">
           {data.projects.map((p) => {

@@ -31,7 +31,7 @@ export default function AppHeader({
     <header className="reference-topbar">
       <div className="header-context">
         <button className="home-button" onClick={() => onNavigate("dashboard")}>
-          דשבורד ראשי <Icon name="arrow" size={16} />
+          תצוגה אישית ראשית <Icon name="arrow" size={16} />
         </button>
         <span className="header-divider" />
         <span className="header-current">
@@ -83,6 +83,13 @@ export default function AppHeader({
           className="topbar-brand"
           symbolOnly={page !== "dashboard"}
         />
+      </button>
+      <button
+        className="return-personal-dashboard"
+        onClick={() => onNavigate("dashboard")}
+      >
+        <Icon name="grid" size={17} />
+        לתצוגה האישית הראשית
       </button>
     </header>
   );

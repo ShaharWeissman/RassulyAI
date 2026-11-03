@@ -3,6 +3,7 @@ import type {
   AppData,
   OfficeProjectStatus,
   Project,
+  ProjectCost,
   Protocol,
   RequirementTask,
 } from "../types";
@@ -11,7 +12,8 @@ import ProjectData from "../components/projects/ProjectData";
 import Costs from "../components/costs/Costs";
 import Tasks from "../components/tasks/Tasks";
 import Protocols from "../components/protocols/Protocols";
-import OfficeStatusForm from "../components/office-status/OfficeStatusForm";
+import OfficeStatusCard from "../components/office-status/OfficeStatusCard";
+import { demoProjectCosts } from "../data/costDefaults";
 export default function ProjectWorkspace({
   data,
   projectId,
@@ -23,6 +25,7 @@ export default function ProjectWorkspace({
   onOfficeSave,
   onTaskSave,
   onProtocolSave,
+  onCostsSave,
   workerName,
 }: {
   data: AppData;
@@ -35,6 +38,7 @@ export default function ProjectWorkspace({
   onOfficeSave: (s: OfficeProjectStatus) => void;
   onTaskSave: (t: RequirementTask) => void;
   onProtocolSave: (p: Protocol) => void;
+  onCostsSave: (costs: ProjectCost[]) => void;
   workerName: string;
 }) {
   const [picker, setPicker] = useState(false);
@@ -175,12 +179,23 @@ export default function ProjectWorkspace({
         )}{" "}
         {module === "costs" && (
           <Costs
-            costs={data.project_costs.filter((c) => c.project_id === p.id)}
+            project={p}
+            sourceBudget={office.budget}
+            costs={
+              data.project_costs.some((c) => c.project_id === p.id)
+                ? data.project_costs.filter((c) => c.project_id === p.id)
+                : demoProjectCosts(p.id, office.budget)
+            }
+            onSave={onCostsSave}
           />
         )}{" "}
         {module === "tasks" && (
           <Tasks
             projectId={p.id}
+            managerTasks={p.manager_tasks ?? ""}
+            onManagerTasksSave={(value) =>
+              onProjectSave({ ...p, manager_tasks: value })
+            }
             tasks={data.requirements_tasks.filter((t) => t.project_id === p.id)}
             onSave={onTaskSave}
           />
@@ -193,20 +208,12 @@ export default function ProjectWorkspace({
           />
         )}{" "}
         {module === "office" && (
-          <section className="panel padded">
-            <div className="section-heading">
-              <div>
-                <h2>סטטוס פרויקט משרדית</h2>
-                <p className="muted">העדכון כאן משותף לתמונת המצב המשרדית.</p>
-              </div>
-              <Badge>{office.condition}</Badge>
-            </div>
-            <OfficeStatusForm
-              key={`${p.id}-${office.updated_at}-${office.short_status}`}
-              value={office}
-              onSave={onOfficeSave}
-            />
-          </section>
+          <OfficeStatusCard
+            key={p.id}
+            value={office}
+            projectName={p.name}
+            onSave={onOfficeSave}
+          />
         )}
       </div>
       {picker && (

@@ -1,4 +1,298 @@
 /* Workspace styling based on the user's engineering dashboard reference. */
+.reference-topbar .return-personal-dashboard {
+  position: fixed;
+  bottom: 20px;
+  inset-inline-end: 20px;
+  z-index: 40;
+  display: inline-flex;
+  background: #172321;
+  color: white;
+  border: 1px solid #55756a;
+  border-radius: 8px;
+  padding: 12px 17px;
+  font-size: 12px;
+  min-height: 44px;
+}
+.reference-topbar .return-personal-dashboard:hover {
+  background: #244038;
+}
+.app-shell .app-footer {
+  padding-bottom: 85px;
+}
+.cost-table-toolbar {
+  padding: 15px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid var(--border);
+}
+.cost-table-toolbar .segmented {
+  margin: 0;
+}
+.cost-table-toolbar > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.cost-table-toolbar select {
+  font: inherit;
+  color: var(--text);
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: white;
+}
+.variance-explanation {
+  padding: 14px 20px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  background: #fafcfc;
+}
+.variance-plus {
+  color: var(--warning);
+}
+.variance-minus {
+  color: var(--success);
+}
+@media (max-width: 720px) {
+  .reference-topbar .return-personal-dashboard {
+    bottom: 12px;
+    inset-inline-end: 12px;
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+}
+.office-editor-more summary {
+  cursor: pointer;
+  color: var(--teal);
+  font-size: 12px;
+  padding: 10px 0;
+}
+.latest-office-card {
+  padding: 25px;
+}
+.latest-office-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+.latest-office-heading h2 {
+  margin: 0;
+}
+.latest-office-heading p {
+  font-size: 11px;
+  margin: 6px 0 0;
+}
+.latest-office-card h3 {
+  font-size: 15px;
+  margin: 0 0 13px;
+}
+.latest-update-text {
+  white-space: pre-line;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 0;
+  color: #43534e;
+}
+.latest-update-text.is-collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.latest-update-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.office-additional {
+  margin-top: 16px;
+  color: #5c6d66;
+  font-size: 12px;
+}
+.office-additional summary {
+  cursor: pointer;
+  color: var(--teal);
+}
+.office-additional h4 {
+  margin: 18px 0 7px;
+}
+.office-additional p {
+  white-space: pre-line;
+}
+.office-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+.office-overview-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+.export-action {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.costs-heading {
+  align-items: center;
+}
+.costs-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: start;
+}
+.cost-pie-panel h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+.pie-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.pie-metric select {
+  border: 1px solid var(--border);
+  background: white;
+  padding: 7px;
+  border-radius: 5px;
+  flex: 1;
+  color: var(--text);
+  font-size: 11px;
+}
+.cost-pie {
+  width: 100%;
+  max-width: 280px;
+  display: block;
+  margin: 10px auto 0;
+}
+.pie-total {
+  text-align: center;
+  margin: 0 0 22px;
+}
+.pie-total span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.pie-total strong {
+  display: block;
+  font-size: 21px;
+  margin-top: 7px;
+  font-weight: 500;
+}
+.pie-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pie-legend li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  padding: 10px 0;
+  border-top: 1px solid #edf1ef;
+}
+.pie-legend strong {
+  margin-inline-start: auto;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.demo-cost-notice {
+  padding: 12px 15px;
+  border: 1px solid #d5e3e0;
+  background: #f0f6f4;
+  color: #576c62;
+  font-size: 11px;
+  border-radius: 6px;
+  margin-bottom: 22px;
+}
+.cost-edit-chapter {
+  margin: 22px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+.cost-edit-chapter legend {
+  padding: 0 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.cost-edit-chapter legend .badge {
+  margin-inline-start: 10px;
+  font-size: 10px;
+}
+.cost-edit-chapter .form-grid {
+  margin-top: 4px;
+}
+@media (max-width: 1150px) {
+  .costs-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cost-pie-panel {
+    max-width: 700px;
+    width: 100%;
+  }
+}
+@media (max-width: 720px) {
+  .office-status-grid {
+    grid-template-columns: 1fr;
+  }
+  .latest-office-card {
+    padding: 20px 17px;
+  }
+  .latest-update-action {
+    flex-wrap: wrap;
+  }
+  .latest-update-text {
+    font-size: 12px;
+  }
+  .costs-heading {
+    flex-wrap: wrap;
+  }
+  .costs-heading .inline-actions {
+    width: 100%;
+  }
+  .costs-heading button {
+    font-size: 11px;
+  }
+  .costs-layout .cost-pie-panel {
+    order: -1;
+  }
+  .cost-pie {
+    max-width: 230px;
+  }
+}
+.manager-tasks-panel form {
+  margin-top: 18px;
+}
+.manager-tasks-panel .form-actions {
+  margin-top: 18px;
+}
 .company-brand {
   display: inline-flex;
   direction: rtl;

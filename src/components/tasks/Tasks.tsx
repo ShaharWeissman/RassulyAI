@@ -6,22 +6,50 @@ export default function Tasks({
   projectId,
   tasks,
   onSave,
+  managerTasks,
+  onManagerTasksSave,
 }: {
   projectId: string;
   tasks: RequirementTask[];
   onSave: (t: RequirementTask) => void;
+  managerTasks: string;
+  onManagerTasksSave: (value: string) => void;
 }) {
   const [adding, setAdding] = useState(false);
+  const [managerDraft, setManagerDraft] = useState(managerTasks);
   return (
     <>
+      <section className="panel padded manager-tasks-panel">
+        <h2>משימות מנהל</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onManagerTasksSave(managerDraft);
+          }}
+        >
+          <Field label="משימות והנחיות מנהל לפרויקט">
+            <textarea
+              rows={4}
+              value={managerDraft}
+              onChange={(e) => setManagerDraft(e.target.value)}
+              placeholder="כתיבת משימות מנהל, הנחיות ונושאים למעקב"
+            />
+          </Field>
+          <div className="form-actions">
+            <button className="primary" type="submit">
+              שמירת משימות מנהל
+            </button>
+          </div>
+        </form>
+      </section>
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>משימות הפרויקט</h2>
+            <h2>משימות פרויקט</h2>
             <p className="muted">אחריות, תאריכי יעד ומעקב ביצוע</p>
           </div>
           <button className="primary" onClick={() => setAdding(true)}>
-            + משימה חדשה
+            + הוספת משימה
           </button>
         </div>
         {!tasks.length ? (

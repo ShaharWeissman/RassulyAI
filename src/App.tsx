@@ -195,6 +195,26 @@ export default function App() {
                 onOpen={openProject}
                 onProjectSave={saveProject}
                 onOfficeSave={saveOffice}
+                onCostsSave={(costs) => {
+                  if (
+                    !costs.length ||
+                    !assignedIds.includes(costs[0].project_id) ||
+                    costs.some(
+                      (cost) => cost.project_id !== costs[0].project_id,
+                    )
+                  )
+                    return;
+                  setData((d) => ({
+                    ...d,
+                    project_costs: [
+                      ...d.project_costs.filter(
+                        (cost) => cost.project_id !== costs[0].project_id,
+                      ),
+                      ...costs,
+                    ],
+                  }));
+                  notify("עלויות הפרויקט עודכנו");
+                }}
                 onTaskSave={(t) => {
                   if (!assignedIds.includes(t.project_id)) return;
                   setData((d) => ({

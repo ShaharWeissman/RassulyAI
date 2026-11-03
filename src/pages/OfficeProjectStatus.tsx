@@ -1,7 +1,6 @@
-import { useState } from "react";
 import type { AppData, OfficeProjectStatus as OfficeStatus } from "../types";
-import { Badge, Modal, Table } from "../components/ui";
-import OfficeStatusForm from "../components/office-status/OfficeStatusForm";
+import OfficeStatusCard from "../components/office-status/OfficeStatusCard";
+import ExportProjectsButton from "../components/ui/ExportProjectsButton";
 export default function OfficeProjectStatus({
   data,
   onSave,
@@ -11,10 +10,6 @@ export default function OfficeProjectStatus({
   onSave: (s: OfficeStatus) => void;
   onOpen: (id: string) => void;
 }) {
-  const [editing, setEditing] = useState<string | null>(null);
-  const selected = data.office_project_status.find(
-    (s) => s.project_id === editing,
-  );
   return (
     <>
       <div className="page-heading">
@@ -27,73 +22,24 @@ export default function OfficeProjectStatus({
           {data.projects.length} פרויקטים משויכים
         </span>
       </div>
-      <section className="panel">
-        <Table
-          caption="סטטוס משרדי לכל הפרויקטים"
-          headers={[
-            "פרויקט",
-            "שלב",
-            "סטטוס משרדית",
-            "גורם מעדכן",
-            "יעד לגמר השלב",
-            "עדכון אחרון",
-            "פעולה",
-          ]}
-        >
-          {data.projects.map((p) => {
-            const s = data.office_project_status.find(
-              (s) => s.project_id === p.id,
-            )!;
-            return (
-              <tr key={p.id}>
-                <td>
-                  <button
-                    className="text-button strong"
-                    onClick={() => onOpen(p.id)}
-                  >
-                    {p.name}
-                  </button>
-                  <small className="cell-sub">{p.client}</small>
-                </td>
-                <td>{p.current_stage}</td>
-                <td>
-                  <Badge>{s.condition}</Badge>
-                  <small className="cell-sub">{s.short_status}</small>
-                </td>
-                <td>{s.update_owner || "—"}</td>
-                <td className="numeric">{s.stage_due_date || "—"}</td>
-                <td className="numeric">{s.updated_at || "—"}</td>
-                <td>
-                  <div className="inline-actions">
-                    <button onClick={() => setEditing(p.id)}>עדכון</button>
-                    <button
-                      className="text-button"
-                      onClick={() => setEditing(p.id)}
-                    >
-                      עריכה
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </Table>
-      </section>
-      {selected && (
-        <Modal
-          title={`עדכון משרדית · ${data.projects.find((p) => p.id === editing)!.name}`}
-          onClose={() => setEditing(null)}
-        >
-          <OfficeStatusForm
-            value={selected}
-            onSave={(s) => {
-              onSave(s);
-              setEditing(null);
-            }}
-            onCancel={() => setEditing(null)}
+      <div className="office-overview-actions">
+        <ExportProjectsButton data={data} />
+      </div>
+      <div className="office-status-grid">
+        {data.projects.map((project) => (
+          <OfficeStatusCard
+            key={project.id}
+            projectName={project.name}
+            value={
+              data.office_project_status.find(
+                (status) => status.project_id === project.id,
+              )!
+            }
+            onSave={onSave}
+            onOpen={() => onOpen(project.id)}
           />
-        </Modal>
-      )}
+        ))}
+      </div>
     </>
   );
 }

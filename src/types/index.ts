@@ -25,6 +25,7 @@ export interface Project {
   current_stage: Stage;
   project_type: "תכנון" | "ביצוע" | "";
   code: string;
+  manager_tasks?: string;
 }
 export interface ProjectAssignment {
   project_id: string;
@@ -73,6 +74,7 @@ export interface ProjectCost {
   actual: number;
   exceptions: number;
   note: string;
+  data_source?: "demo" | "manual";
 }
 export interface ProtocolItem {
   id: string;
@@ -113,6 +115,7 @@ export interface LeaveRequest {
   status: "ממתין לאישור" | "אושר";
 }
 export interface AppData {
+  presentation_revision?: number;
   workers: Worker[];
   projects: Project[];
   project_assignments: ProjectAssignment[];
