@@ -13,6 +13,7 @@
   font-size: 12px;
   min-height: 44px;
 }
+
 .reference-topbar .return-personal-dashboard:hover {
   background: #244038;
 }
@@ -973,5 +974,387 @@
   }
   .is-project .notice {
     margin: 15px 16px;
+  }
+}
+
+/* Compact spacing keeps the same typography and information hierarchy. */
+.app-shell .content-wrap {
+  padding: 20px 24px;
+}
+.is-project .content-wrap {
+  padding: 0;
+}
+.app-shell .page-heading {
+  margin-bottom: 20px;
+  gap: 14px;
+}
+.app-shell .page-heading h1 {
+  margin-bottom: 6px;
+}
+.app-shell .eyebrow {
+  margin-bottom: 6px;
+}
+.app-shell .section-heading {
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.app-shell .metrics {
+  padding: 15px 0;
+  margin-bottom: 22px;
+}
+.app-shell .metrics > div {
+  gap: 12px;
+  padding-inline: 20px;
+}
+.app-shell .metrics small {
+  margin-bottom: 5px;
+}
+.app-shell .project-grid {
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.app-shell .project-card {
+  padding: 15px 16px;
+}
+.app-shell .project-card .card-top {
+  margin-bottom: 10px;
+}
+.app-shell .project-code {
+  margin-bottom: 5px;
+}
+.app-shell .project-card h3 {
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.app-shell .project-card p {
+  min-height: 0;
+  margin-bottom: 11px;
+  line-height: 1.5;
+}
+.app-shell .project-card p:empty {
+  display: none;
+}
+.app-shell .stage-row {
+  padding-bottom: 10px;
+}
+.app-shell .card-bottom {
+  margin-top: 10px;
+}
+.app-shell .shortcut-grid {
+  gap: 12px;
+}
+.app-shell .shortcut {
+  padding: 13px 15px;
+  gap: 10px;
+}
+.app-shell .shortcut strong {
+  margin-bottom: 4px;
+}
+.app-shell .dashboard-footer {
+  margin-top: 18px;
+}
+.app-shell .panel {
+  margin-bottom: 14px;
+}
+.app-shell .panel.padded {
+  padding: 18px;
+}
+.app-shell .panel-heading,
+.project-workspace .panel-heading {
+  padding: 14px 18px;
+  gap: 12px;
+}
+.app-shell th {
+  padding: 10px 15px;
+}
+.app-shell td {
+  padding: 11px 15px;
+}
+.app-shell .cell-sub {
+  margin-top: 4px;
+}
+.app-shell .form-grid {
+  gap: 14px 16px;
+  margin-top: 16px;
+}
+.app-shell .field {
+  gap: 6px;
+}
+.app-shell .field input,
+.app-shell .field select,
+.app-shell .field textarea {
+  padding: 9px 10px;
+  min-height: 38px;
+}
+.app-shell .empty {
+  padding: 24px 16px;
+}
+.app-shell .empty p {
+  margin-top: 9px;
+}
+.app-shell .notice {
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+.project-workspace .project-tabs {
+  padding: 8px 24px 0;
+}
+.project-workspace .project-tabs button {
+  min-height: 40px;
+  padding: 9px 15px;
+}
+.project-workspace .project-tabs button.active {
+  padding-top: 7px;
+}
+.project-workspace .project-heading {
+  margin: 0;
+  padding: 18px 24px 16px;
+  gap: 12px;
+}
+.project-workspace .project-title-line {
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.project-workspace .project-title-line h1 {
+  margin: 0;
+}
+.project-workspace .workspace-summary {
+  padding: 13px 24px;
+}
+.project-workspace .workspace-summary > div {
+  padding-inline: 14px;
+}
+.project-workspace .workspace-summary > div:first-child {
+  padding-inline-start: 0;
+}
+.project-workspace .workspace-summary dt {
+  margin-bottom: 5px;
+}
+.project-workspace .module-tabs {
+  padding-inline: 24px;
+  gap: 20px;
+}
+.project-workspace .module-tabs button {
+  min-height: 44px;
+  padding: 11px 4px;
+}
+.project-workspace .module-content {
+  padding: 18px 24px;
+  min-height: 0;
+  scroll-margin-top: 50px;
+}
+.project-workspace .project-details {
+  padding: 20px;
+  gap: 16px;
+}
+.project-workspace .project-details dt {
+  margin-bottom: 8px;
+}
+.project-workspace .stage-panel {
+  padding: 18px 20px;
+}
+.project-workspace .stage-track {
+  margin-top: 18px;
+}
+.project-workspace .cost-summary {
+  margin-bottom: 16px;
+}
+.project-workspace .cost-summary > div {
+  padding: 15px 17px;
+}
+.project-workspace .cost-summary strong {
+  margin-top: 8px;
+}
+.app-shell .costs-layout,
+.app-shell .office-status-grid {
+  gap: 16px;
+}
+.app-shell .cost-table-toolbar {
+  padding: 10px 16px;
+  gap: 10px;
+}
+.app-shell .variance-explanation {
+  padding: 10px 16px;
+}
+.app-shell .latest-office-card {
+  padding: 18px;
+}
+.app-shell .latest-office-heading {
+  margin-bottom: 12px;
+  gap: 10px;
+}
+.app-shell .latest-office-heading p {
+  margin-top: 4px;
+}
+.app-shell .latest-office-card h3 {
+  margin-bottom: 8px;
+}
+.app-shell .latest-update-text {
+  line-height: 1.6;
+}
+.app-shell .latest-update-action {
+  margin-top: 14px;
+  padding-top: 12px;
+  gap: 10px;
+}
+.app-shell .office-additional {
+  margin-top: 10px;
+}
+.app-shell .office-additional h4 {
+  margin-top: 12px;
+}
+.app-shell .office-overview-actions {
+  margin-bottom: 12px;
+}
+.app-shell .cost-pie {
+  max-width: 240px;
+  margin-top: 4px;
+}
+.app-shell .pie-total {
+  margin-bottom: 13px;
+}
+.app-shell .pie-total strong {
+  margin-top: 4px;
+}
+.app-shell .pie-legend li {
+  padding: 7px 0;
+}
+.app-shell .cost-pie-panel h2 {
+  margin-bottom: 10px;
+}
+.app-shell .demo-cost-notice {
+  margin-bottom: 14px;
+  padding: 9px 12px;
+}
+.app-shell .cost-edit-chapter {
+  margin: 14px 0;
+  padding: 14px;
+}
+.app-shell .manager-tasks-panel form,
+.app-shell .manager-tasks-panel .form-actions {
+  margin-top: 12px;
+}
+.app-shell .source-note {
+  padding-top: 10px;
+}
+.app-shell .app-footer {
+  padding: 12px 24px 64px;
+}
+.reference-topbar {
+  padding: 10px 20px;
+  min-height: 68px;
+}
+.company-brand.topbar-brand {
+  height: 54px;
+  padding-block: 6px;
+}
+.company-brand.company-brand-icon.topbar-brand {
+  height: 46px;
+}
+@media (max-width: 1100px) {
+  .project-workspace .workspace-summary {
+    gap: 13px 0;
+  }
+  .project-workspace .workspace-summary > div:nth-child(4) {
+    padding-inline-start: 0;
+  }
+}
+@media (max-width: 720px) {
+  .reference-topbar {
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .reference-topbar .header-user {
+    padding-top: 8px;
+  }
+  .company-brand.topbar-brand {
+    height: 50px;
+  }
+  .app-shell .content-wrap {
+    padding: 18px 14px;
+  }
+  .is-project .content-wrap {
+    padding: 0;
+  }
+  .app-shell .page-heading {
+    margin-bottom: 16px;
+  }
+  .app-shell .metrics {
+    padding: 13px 0;
+    margin-bottom: 18px;
+  }
+  .app-shell .metrics > div {
+    padding-inline: 10px;
+  }
+  .app-shell .project-grid {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .app-shell .project-card {
+    padding: 12px;
+  }
+  .app-shell .project-card h3 {
+    line-height: 1.35;
+  }
+  .app-shell .stage-row {
+    gap: 4px;
+    padding-bottom: 8px;
+  }
+  .app-shell .card-bottom {
+    gap: 7px;
+    margin-top: 8px;
+  }
+  .app-shell .panel.padded,
+  .app-shell .latest-office-card {
+    padding: 15px;
+  }
+  .app-shell .panel-heading,
+  .project-workspace .panel-heading {
+    padding: 12px 15px;
+  }
+  .app-shell .field input,
+  .app-shell .field select {
+    min-height: 42px;
+  }
+  .project-workspace .project-tabs {
+    padding: 7px 14px 0;
+  }
+  .project-workspace .project-heading {
+    padding: 15px;
+    gap: 10px;
+  }
+  .project-workspace .workspace-summary {
+    padding: 12px 15px;
+    gap: 12px 0;
+  }
+  .project-workspace .workspace-summary > div {
+    padding-inline: 10px;
+  }
+  .project-workspace .workspace-summary > div:nth-child(odd) {
+    padding-inline-start: 0;
+  }
+  .project-workspace .workspace-summary > div:nth-child(even) {
+    padding-inline-start: 10px;
+  }
+  .project-workspace .module-tabs {
+    padding-inline: 14px;
+    gap: 16px;
+  }
+  .project-workspace .module-tabs button {
+    min-height: 44px;
+    padding-block: 11px;
+  }
+  .project-workspace .module-content {
+    padding: 14px;
+  }
+  .project-workspace .project-details {
+    padding: 16px;
+    gap: 17px 14px;
+  }
+  .project-workspace .cost-summary > div {
+    padding: 12px;
+  }
+  .app-shell .cost-pie {
+    max-width: 210px;
   }
 }
