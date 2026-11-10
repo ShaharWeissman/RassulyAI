@@ -4,9 +4,9 @@ import type {
   Project,
   Worker,
 } from "./types";
-import { assignedProjectIds } from "./data/auth";
+import { assignedProjectIds, demoWorkers } from "./data/auth";
 import { useWorkspace } from "./data/useWorkspace";
-import { cloudEnabled, signOut } from "./data/cloudWorkspace";
+import { cloudEnabled, fetchWorkspace, signOut } from "./data/cloudWorkspace";
 import { Icon } from "./components/ui";
 import AppHeader from "./components/ui/AppHeader";
 import Login from "./pages/Login";
@@ -23,7 +23,6 @@ const navigation = [
 ];
 export default function App() {
   const [worker, setWorker] = useState<Worker | null>(null);
-  const currentWorkerId = worker?.id ?? "";
   const {
     data,
     setData,
@@ -34,6 +33,11 @@ export default function App() {
     retry,
     downloadBackup,
   } = useWorkspace();
+  const currentWorkerId = cloudEnabled
+    ? (data.workers[0]?.id ?? "")
+    : (worker?.id ?? "");
+  const supervisor = worker && ["stav", "admin"].includes(worker.id);
+  const [switching, setSwitching] = useState(false);
   const [page, setPage] = useState("dashboard");
   const [projectId, setProjectId] = useState("");
   const [openIds, setOpenIds] = useState<string[]>([]);
@@ -163,8 +167,43 @@ export default function App() {
             window.scrollTo({ top: 0 });
           }}
         />
-        <main id="main-content" tabIndex={-1}>
+        <main id="main-content" tabIndex={-1} inert={switching}>
           <div className="content-wrap">
+            {cloudEnabled && supervisor && (
+              <label className="notice">
+                סביבת עבודה — גישה לכל המידע
+                <select
+                  value={currentWorkerId}
+                  disabled={pending || switching}
+                  onChange={async (event) => {
+                    const id = event.target.value;
+                    setSwitching(true);
+                    try {
+                      const workspace = await fetchWorkspace(id);
+                      initialize(workspace.data, workspace.revision);
+                      setPage("dashboard");
+                      setOpenIds([]);
+                      setProjectId("");
+                      setNotice("");
+                    } catch (reason) {
+                      setNotice(
+                        reason instanceof Error
+                          ? reason.message
+                          : "טעינת הנתונים נכשלה",
+                      );
+                    } finally {
+                      setSwitching(false);
+                    }
+                  }}
+                >
+                  {demoWorkers.map((person) => (
+                    <option key={person.id} value={person.id}>
+                      {person.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="notice" role="status">
               <span>
                 {error ||
@@ -189,7 +228,10 @@ export default function App() {
             {page === "dashboard" && (
               <Dashboard
                 data={userData}
-                workerName={worker.name}
+                workerName={
+                  data.workers.find((person) => person.id === currentWorkerId)
+                    ?.name ?? worker.name
+                }
                 onOpen={openProject}
                 onNavigate={navigate}
               />
@@ -275,7 +317,7 @@ export default function App() {
                 </div>
                 <CarReport
                   data={userData}
-                  workerId={worker.id}
+                  workerId={currentWorkerId}
                   onSave={(entry) => {
                     setData((d) => ({
                       ...d,
@@ -297,7 +339,7 @@ export default function App() {
                 </div>
                 <Personal
                   requests={userData.leave_requests}
-                  workerId={worker.id}
+                  workerId={currentWorkerId}
                   onSave={(request) => {
                     setData((d) => ({
                       ...d,

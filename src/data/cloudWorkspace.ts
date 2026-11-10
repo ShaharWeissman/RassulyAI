@@ -24,9 +24,15 @@ export async function signIn(email: string, password: string) {
   return { ...workspace, worker };
 }
 
-export async function fetchWorkspace(): Promise<CloudWorkspace> {
+let activeWorkerId: string | null = null;
+
+export async function fetchWorkspace(
+  targetWorkerId: string | null = null,
+): Promise<CloudWorkspace> {
   if (!client) throw new Error("חיבור השרת טרם הוגדר.");
-  const { data, error } = await client.rpc("load_workspace");
+  const { data, error } = await client.rpc("load_workspace", {
+    target_worker_id: targetWorkerId,
+  });
   if (error)
     throw new Error(
       "לא ניתן לטעון נתונים מהשרת. בדוק שהוקמו הטבלאות ושויך המשתמש.",
@@ -42,6 +48,7 @@ export async function fetchWorkspace(): Promise<CloudWorkspace> {
     throw new Error(
       "השרת החזיר נתונים לא תקינים. יש לבדוק את הגדרת סביבת העבודה.",
     );
+  activeWorkerId = targetWorkerId;
   return data as CloudWorkspace;
 }
 
@@ -53,6 +60,7 @@ export async function persistWorkspace(
   const result = await client.rpc("save_workspace", {
     payload: data,
     expected_revision: revision,
+    target_worker_id: activeWorkerId,
   });
   if (result.error) {
     if (result.error.message.includes("revision_conflict"))
