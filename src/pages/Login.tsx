@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Field, Icon } from "../components/ui";
 import CompanyBrand from "../components/ui/CompanyBrand";
-import { authenticateDemo, demoWorkers } from "../data/auth";
+import { authenticateDemo } from "../data/auth";
 import {
   cloudEnabled,
   configurationMissing,
@@ -86,27 +86,6 @@ export default function Login({
           <span className="eyebrow">ברוכים הבאים</span>
           <h2>כניסה למערכת</h2>
           <p className="muted">סביבת ניהול הפרויקטים של רסולי הנדסה</p>
-          <div className="login-accounts" aria-label="בחירת משתמש">
-            {demoWorkers.map((worker) => (
-              <button
-                type="button"
-                key={worker.id}
-                className={email === worker.email ? "active" : ""}
-                aria-pressed={email === worker.email}
-                onClick={() => {
-                  setEmail(worker.email);
-                  setPassword("");
-                  setError("");
-                }}
-              >
-                <Icon name="user" />
-                <span>
-                  <strong>{worker.name}</strong>
-                  <small dir="ltr">{worker.email}</small>
-                </span>
-              </button>
-            ))}
-          </div>
           <Field label="שם משתמש / דוא״ל">
             <input
               required
