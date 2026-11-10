@@ -1,7 +1,6 @@
 import type { Worker } from "../types";
 
 export const demoWorkers: Worker[] = [
-  { id: "stav", name: "סתיו", email: "stav@rassuly-eng.co.il" },
   { id: "admin", name: "מנהל מערכת", email: "tadmin@example.com" },
   { id: "shahar", name: "שחר וייסמן", email: "tshaharw@example.com" },
   { id: "nave", name: "נווה", email: "tnave@example.com" },

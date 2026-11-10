@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { AppData, Worker } from "../types";
+import { demoWorkers } from "./auth";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -15,6 +16,8 @@ export interface CloudWorkspace {
 
 export async function signIn(email: string, password: string) {
   if (!client) throw new Error("חיבור השרת טרם הוגדר.");
+  if (!demoWorkers.some((worker) => worker.email === email))
+    throw new Error("כתובת הדוא״ל אינה משויכת לחשבון בדיקה.");
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error)
     throw new Error("הכניסה נכשלה. יש לבדוק דוא״ל וסיסמה וחיבור לרשת.");

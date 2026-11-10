@@ -36,7 +36,7 @@ export default function App() {
   const currentWorkerId = cloudEnabled
     ? (data.workers[0]?.id ?? "")
     : (worker?.id ?? "");
-  const supervisor = worker && ["stav", "admin"].includes(worker.id);
+  const supervisor = worker?.id === "admin";
   const [switching, setSwitching] = useState(false);
   const [page, setPage] = useState("dashboard");
   const [projectId, setProjectId] = useState("");
