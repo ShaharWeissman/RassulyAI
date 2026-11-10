@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Badge, Field, Table } from "../components/ui";
+import FileSkillAction from "../components/ui/FileSkillAction";
 import { demoWorkers } from "../data/auth";
 import { approveLeaveRequest, fetchWorkspace } from "../data/cloudWorkspace";
 import type { AppData } from "../types";
@@ -159,14 +160,22 @@ export default function AdminOverview({
           <h1>{title}</h1>
           <p className="muted">נתונים מכל מנהלי הפרויקטים.</p>
         </div>
-        <button
-          onClick={() => {
-            setError("");
-            setReload((n) => n + 1);
-          }}
-        >
-          רענון
-        </button>
+        <div className="inline-actions">
+          {section === "office" && (
+            <FileSkillAction
+              context="סטטוס פרויקטים משרדי"
+              accept=".xlsx,.xls,.csv"
+            />
+          )}
+          <button
+            onClick={() => {
+              setError("");
+              setReload((n) => n + 1);
+            }}
+          >
+            רענון
+          </button>
+        </div>
       </div>
       {error && (
         <p className="notice" role="alert">

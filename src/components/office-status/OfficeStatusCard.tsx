@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { OfficeProjectStatus } from "../../types";
 import { Badge, Modal } from "../ui";
 import OfficeStatusForm from "./OfficeStatusForm";
+import FileSkillAction from "../ui/FileSkillAction";
 
 export default function OfficeStatusCard({
   value,
@@ -74,6 +75,12 @@ export default function OfficeStatusCard({
           </details>
         )}
         <div className="latest-update-action">
+          {!onOpen && (
+            <FileSkillAction
+              context="סטטוס פרויקט"
+              accept=".xlsx,.xls,.csv,.pdf"
+            />
+          )}
           <span className="muted">יש עדכון חדש בפרויקט?</span>
           <button className="primary" onClick={() => setEditing(true)}>
             עדכון סטטוס

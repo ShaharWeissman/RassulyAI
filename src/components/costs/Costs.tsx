@@ -1,8 +1,10 @@
 import { useState } from "react";
-import type { Project, ProjectCost } from "../../types";
+import type { CostVarianceItem, Project, ProjectCost } from "../../types";
 import { Badge, Field, Modal, Table } from "../ui";
 import CostPie from "./CostPie";
 import CostVarianceTable from "./CostVarianceTable";
+import CostVarianceItems from "./CostVarianceItems";
+import FileSkillAction from "../ui/FileSkillAction";
 import { costsWorkbook, downloadExcel } from "../../utils/excel";
 const currency = (value: number) =>
   new Intl.NumberFormat("he-IL", {
@@ -22,11 +24,13 @@ export default function Costs({
   costs,
   sourceBudget,
   onSave,
+  onVarianceSave,
 }: {
   project: Project;
   costs: ProjectCost[];
   sourceBudget: number | null;
   onSave: (costs: ProjectCost[]) => void;
+  onVarianceSave: (items: CostVarianceItem[]) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(costs);
@@ -67,6 +71,7 @@ export default function Costs({
           <p className="muted">מעקב עלויות וחלוקה לפרקים</p>
         </div>
         <div className="inline-actions">
+          <FileSkillAction context="עלויות פרויקט" />
           <button
             onClick={() => {
               try {
@@ -117,11 +122,19 @@ export default function Costs({
           </div>
         ))}
       </div>
+      {view === "variance" && (
+        <CostVarianceItems
+          items={project.variance_items ?? []}
+          onSave={onVarianceSave}
+        />
+      )}
       <div className="costs-layout">
         <section className="panel">
           <div className="panel-heading">
             <h2>
-              {view === "chapters" ? "עלויות לפי פרק" : "טבלת פלוס / מינוס"}
+              {view === "chapters"
+                ? "עלויות לפי פרק"
+                : "השוואת פלוס / מינוס לפי פרקים"}
             </h2>
             <span className="subtle-label">{costs.length} פרקים · ש״ח</span>
           </div>

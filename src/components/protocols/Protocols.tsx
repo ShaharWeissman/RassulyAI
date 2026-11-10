@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Protocol, ProtocolItem, TaskStatus } from "../../types";
 import { Badge, Empty, Field, Options } from "../ui";
 import { cloudClient } from "../../data/cloudWorkspace";
+import FileSkillAction from "../ui/FileSkillAction";
 const newItem = (): ProtocolItem => ({
   id: crypto.randomUUID(),
   title: "",
@@ -67,20 +68,26 @@ export default function Protocols({
             <h2>פרוטוקולים</h2>
             <p className="muted">סיכומים, החלטות ומשימות להמשך</p>
           </div>
-          <button
-            className="primary"
-            disabled={transcribing}
-            onClick={() => {
-              setItems([newItem()]);
-              setAudio(undefined);
-              setTranscript("");
-              setTranscriptionError("");
-              setCreating(true);
-              setSelected(null);
-            }}
-          >
-            + פרוטוקול חדש
-          </button>
+          <div className="inline-actions">
+            <FileSkillAction
+              context="פרוטוקולים"
+              accept=".pdf,.docx,.xlsx,.txt"
+            />
+            <button
+              className="primary"
+              disabled={transcribing}
+              onClick={() => {
+                setItems([newItem()]);
+                setAudio(undefined);
+                setTranscript("");
+                setTranscriptionError("");
+                setCreating(true);
+                setSelected(null);
+              }}
+            >
+              + פרוטוקול חדש
+            </button>
+          </div>
         </div>
         {protocols.length ? (
           <div className="protocol-list">

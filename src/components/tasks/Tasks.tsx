@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { RequirementTask, TaskStatus } from "../../types";
 import { Badge, Empty, Field, Modal, Options, Table } from "../ui";
+import FileSkillAction from "../ui/FileSkillAction";
 const statuses: TaskStatus[] = ["פתוח", "בטיפול", "הושלם"];
 const statusOptions = statuses.map((status) => (
   <option key={status} value={status}>
@@ -9,12 +10,16 @@ const statusOptions = statuses.map((status) => (
 ));
 export default function Tasks({
   projectId,
+  assignee,
+  isAdmin,
   tasks,
   onSave,
   managerTasks,
   onManagerTasksSave,
 }: {
   projectId: string;
+  assignee: string;
+  isAdmin: boolean;
   tasks: RequirementTask[];
   onSave: (t: RequirementTask) => void;
   managerTasks: string;
@@ -59,20 +64,42 @@ export default function Tasks({
             <h2>משימות פרויקט</h2>
             <p className="muted">אחריות, תאריכי יעד ומעקב ביצוע</p>
           </div>
-          <button className="primary" onClick={() => setAdding(true)}>
-            + הוספת משימה
-          </button>
+          <div className="inline-actions">
+            <FileSkillAction context="משימות פרויקט" />
+            <button className="primary" onClick={() => setAdding(true)}>
+              {isAdmin ? "הקצאת משימת מנהל" : "הוספת משימה לעצמי"}
+            </button>
+          </div>
         </div>
         {!tasks.length ? (
           <Empty text="אין משימות בפרויקט הזה. אפשר להוסיף משימה באמצעות הכפתור למעלה." />
         ) : (
           <Table
             caption="משימות הפרויקט"
-            headers={["משימה", "אחראי", "עדיפות", "תאריך יעד", "סטטוס", "הערה"]}
+            headers={[
+              "משימה",
+              "מקור",
+              "אחראי",
+              "עדיפות",
+              "תאריך יעד",
+              "סטטוס",
+              "הערה",
+            ]}
           >
             {tasks.map((t) => (
               <tr key={t.id}>
                 <td className="strong">{t.title}</td>
+                <td>
+                  <span
+                    className={`project-task-origin ${t.origin === "manager" ? "manager" : "personal"}`}
+                  >
+                    {t.origin === "manager"
+                      ? "משימת מנהל"
+                      : t.origin === "personal"
+                        ? "משימה אישית"
+                        : "משימת פרויקט"}
+                  </span>
+                </td>
                 <td>{t.assignee}</td>
                 <td>
                   <Badge>{t.priority}</Badge>
@@ -97,7 +124,10 @@ export default function Tasks({
         )}
       </section>
       {adding && (
-        <Modal title="משימה חדשה" onClose={() => setAdding(false)}>
+        <Modal
+          title={isAdmin ? "משימת מנהל חדשה" : "משימה אישית חדשה"}
+          onClose={() => setAdding(false)}
+        >
           <form
             className="form-grid"
             onSubmit={(e) => {
@@ -107,7 +137,8 @@ export default function Tasks({
                 id: crypto.randomUUID(),
                 project_id: projectId,
                 title: String(f.get("title")),
-                assignee: String(f.get("assignee")),
+                assignee,
+                origin: isAdmin ? "manager" : "personal",
                 priority: f.get("priority") as RequirementTask["priority"],
                 due_date: String(f.get("due")),
                 status: f.get("status") as TaskStatus,
@@ -120,7 +151,7 @@ export default function Tasks({
               <input required name="title" />
             </Field>
             <Field label="אחראי">
-              <input required name="assignee" />
+              <input value={assignee} readOnly />
             </Field>
             <Field label="עדיפות">
               <select name="priority">

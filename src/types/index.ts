@@ -26,6 +26,16 @@ export interface Project {
   project_type: "תכנון" | "ביצוע" | "";
   code: string;
   manager_tasks?: string;
+  variance_items?: CostVarianceItem[];
+}
+export interface CostVarianceItem {
+  id: string;
+  code: string;
+  chapter: string;
+  description: string;
+  amount: number;
+  approval: "ממתין לאישור" | "אושר" | "לא אושר";
+  note: string;
 }
 export interface ProjectAssignment {
   project_id: string;
@@ -56,6 +66,7 @@ export interface OfficeProjectStatus {
 }
 export type TaskStatus = "פתוח" | "בטיפול" | "הושלם" | "באיחור";
 export interface RequirementTask {
+  origin?: "manager" | "personal";
   id: string;
   project_id: string;
   title: string;

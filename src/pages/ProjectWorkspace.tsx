@@ -189,11 +189,16 @@ export default function ProjectWorkspace({
                 : demoProjectCosts(p.id, office.budget)
             }
             onSave={onCostsSave}
+            onVarianceSave={(items) =>
+              onProjectSave({ ...p, variance_items: items })
+            }
           />
         )}{" "}
         {module === "tasks" && (
           <Tasks
             projectId={p.id}
+            assignee={data.workers[0]?.name ?? workerName}
+            isAdmin={isAdmin}
             managerTasks={p.manager_tasks ?? ""}
             onManagerTasksSave={
               isAdmin

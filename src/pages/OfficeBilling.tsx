@@ -12,6 +12,7 @@ import {
 } from "../data/officeBilling";
 import { downloadExcel, workbookBytes } from "../utils/excel";
 import "../styles/billing.css";
+import FileSkillAction from "../components/ui/FileSkillAction";
 
 const steps = [
   "טרם נפתחה תחזית",
@@ -399,6 +400,7 @@ export default function OfficeBilling() {
                   רענון
                 </button>
                 <button onClick={exportReport}>ייצוא Excel</button>
+                <FileSkillAction context="חשבונות משרדיים" />
                 <button onClick={() => window.print()}>הדפסה / PDF</button>
               </div>
             </div>

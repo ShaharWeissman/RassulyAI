@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Project } from "../../types";
+import FileSkillAction from "../ui/FileSkillAction";
 import { stages } from "../../types";
 import { Badge, Field, Icon, Modal, Options } from "../ui";
 export default function ProjectData({
@@ -19,15 +20,18 @@ export default function ProjectData({
             <h2>נתוני פרויקט</h2>
             <p className="muted">פרטי הפרויקט והשלב הנוכחי</p>
           </div>
-          <button
-            onClick={() => {
-              setDraft(project);
-              setEditing(true);
-            }}
-          >
-            <Icon name="edit" size={16} />
-            עריכת נתוני פרויקט
-          </button>
+          <div className="inline-actions">
+            <FileSkillAction context="נתוני פרויקט" />
+            <button
+              onClick={() => {
+                setDraft(project);
+                setEditing(true);
+              }}
+            >
+              <Icon name="edit" size={16} />
+              עריכת נתוני פרויקט
+            </button>
+          </div>
         </div>
         <dl className="project-details">
           <div>

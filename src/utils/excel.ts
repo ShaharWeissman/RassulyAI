@@ -353,6 +353,38 @@ export function costsWorkbook(
       headerRow: 4,
       dataEndRow: last,
     },
+    ...(project.variance_items?.length
+      ? [
+          {
+            name: "סעיפי פלוס מינוס",
+            rows: [
+              textRow(
+                [
+                  "מספר סעיף / חריג",
+                  "פרק",
+                  "תיאור",
+                  "פלוס",
+                  "מינוס",
+                  "אישור מזמין",
+                  "הערה",
+                ],
+                1,
+              ),
+              ...project.variance_items.map((item) => [
+                cell(item.code),
+                cell(item.chapter),
+                cell(item.description),
+                money(item.amount > 0 ? item.amount : null),
+                money(item.amount < 0 ? item.amount : null),
+                cell(item.approval),
+                cell(item.note),
+              ]),
+            ],
+            widths: [24, 24, 55, 20, 20, 22, 45],
+            headerRow: 1,
+          },
+        ]
+      : []),
   ]);
 }
 

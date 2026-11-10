@@ -1,6 +1,7 @@
 import type { AppData, OfficeProjectStatus as OfficeStatus } from "../types";
 import OfficeStatusCard from "../components/office-status/OfficeStatusCard";
 import ExportProjectsButton from "../components/ui/ExportProjectsButton";
+import FileSkillAction from "../components/ui/FileSkillAction";
 export default function OfficeProjectStatus({
   data,
   onSave,
@@ -23,6 +24,10 @@ export default function OfficeProjectStatus({
         </span>
       </div>
       <div className="office-overview-actions">
+        <FileSkillAction
+          context="סטטוס פרויקטים משרדי"
+          accept=".xlsx,.xls,.csv"
+        />
         <ExportProjectsButton data={data} />
       </div>
       <div className="office-status-grid">

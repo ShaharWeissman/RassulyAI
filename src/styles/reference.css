@@ -1,4 +1,19 @@
 /* Workspace styling based on the user's engineering dashboard reference. */
+.project-task-origin {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.project-task-origin.manager {
+  background: #d7f2ec;
+  color: #14594c;
+}
+.project-task-origin.personal {
+  background: #e5edfa;
+  color: #254c84;
+}
 .development-view {
   position: fixed;
   inset-inline-start: 16px;
