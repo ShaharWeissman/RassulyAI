@@ -15,6 +15,7 @@ import ProjectWorkspace from "./pages/ProjectWorkspace";
 import OfficeProjectStatus from "./pages/OfficeProjectStatus";
 import OfficeBilling from "./pages/OfficeBilling";
 import AdminOverview from "./pages/AdminOverview";
+import OrganizationTasks from "./pages/OrganizationTasks";
 import CarReport from "./components/dashboard/CarReport";
 import Personal from "./components/dashboard/Personal";
 const navigation = [
@@ -22,6 +23,8 @@ const navigation = [
   { id: "car", title: "דיווח רכב", icon: "car" },
   { id: "personal", title: "אישי", icon: "user" },
   { id: "office", title: "סטטוס פרויקט משרדית", icon: "status" },
+  { id: "clients", title: "לקוחות", icon: "building" },
+  { id: "tasks", title: "משימות", icon: "status" },
   { id: "billing", title: "מעקב חשבונות משרדיים", icon: "file" },
 ];
 export default function App() {
@@ -229,7 +232,9 @@ export default function App() {
             {supervisor &&
               (page === "dashboard" ||
                 page === "car" ||
-                page === "personal") && (
+                page === "personal" ||
+                page === "office" ||
+                page === "clients") && (
                 <AdminOverview
                   key={page}
                   section={page}
@@ -253,6 +258,7 @@ export default function App() {
                 data={userData}
                 projectId={projectId}
                 workerName={worker.name}
+                isAdmin={supervisor}
                 openIds={openIds}
                 module={module}
                 onModule={(m) => {
@@ -309,7 +315,8 @@ export default function App() {
               />
             )}{" "}
             {page === "billing" && <OfficeBilling />}
-            {page === "office" && (
+            {page === "tasks" && <OrganizationTasks admin={supervisor} />}
+            {!supervisor && page === "office" && (
               <OfficeProjectStatus
                 data={userData}
                 onSave={saveOffice}

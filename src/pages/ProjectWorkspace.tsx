@@ -27,6 +27,7 @@ export default function ProjectWorkspace({
   onProtocolSave,
   onCostsSave,
   workerName,
+  isAdmin,
 }: {
   data: AppData;
   projectId: string;
@@ -40,6 +41,7 @@ export default function ProjectWorkspace({
   onProtocolSave: (p: Protocol) => void;
   onCostsSave: (costs: ProjectCost[]) => void;
   workerName: string;
+  isAdmin: boolean;
 }) {
   const [picker, setPicker] = useState(false);
   const p = data.projects.find((p) => p.id === projectId)!;
@@ -193,8 +195,10 @@ export default function ProjectWorkspace({
           <Tasks
             projectId={p.id}
             managerTasks={p.manager_tasks ?? ""}
-            onManagerTasksSave={(value) =>
-              onProjectSave({ ...p, manager_tasks: value })
+            onManagerTasksSave={
+              isAdmin
+                ? (value) => onProjectSave({ ...p, manager_tasks: value })
+                : undefined
             }
             tasks={data.requirements_tasks.filter((t) => t.project_id === p.id)}
             onSave={onTaskSave}

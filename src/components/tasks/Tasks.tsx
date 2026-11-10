@@ -1,7 +1,12 @@
 import { useState } from "react";
 import type { RequirementTask, TaskStatus } from "../../types";
 import { Badge, Empty, Field, Modal, Options, Table } from "../ui";
-const statuses: TaskStatus[] = ["פתוח", "בטיפול", "הושלם", "באיחור"];
+const statuses: TaskStatus[] = ["פתוח", "בטיפול", "הושלם"];
+const statusOptions = statuses.map((status) => (
+  <option key={status} value={status}>
+    {status === "הושלם" ? "בוצע" : status}
+  </option>
+));
 export default function Tasks({
   projectId,
   tasks,
@@ -13,34 +18,40 @@ export default function Tasks({
   tasks: RequirementTask[];
   onSave: (t: RequirementTask) => void;
   managerTasks: string;
-  onManagerTasksSave: (value: string) => void;
+  onManagerTasksSave?: (value: string) => void;
 }) {
   const [adding, setAdding] = useState(false);
   const [managerDraft, setManagerDraft] = useState(managerTasks);
   return (
     <>
       <section className="panel padded manager-tasks-panel">
-        <h2>משימות מנהל</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onManagerTasksSave(managerDraft);
-          }}
-        >
-          <Field label="משימות והנחיות מנהל לפרויקט">
-            <textarea
-              rows={4}
-              value={managerDraft}
-              onChange={(e) => setManagerDraft(e.target.value)}
-              placeholder="כתיבת משימות מנהל, הנחיות ונושאים למעקב"
-            />
-          </Field>
-          <div className="form-actions">
-            <button className="primary" type="submit">
-              שמירת משימות מנהל
-            </button>
-          </div>
-        </form>
+        <h2>הנחיות מנהל לפרויקט</h2>
+        {onManagerTasksSave ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onManagerTasksSave(managerDraft);
+            }}
+          >
+            <Field label="משימות והנחיות מנהל לפרויקט">
+              <textarea
+                rows={4}
+                value={managerDraft}
+                onChange={(e) => setManagerDraft(e.target.value)}
+                placeholder="כתיבת משימות מנהל, הנחיות ונושאים למעקב"
+              />
+            </Field>
+            <div className="form-actions">
+              <button className="primary" type="submit">
+                שמירת משימות מנהל
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="preserve-whitespace">
+            {managerTasks || "אין הנחיות לפרויקט."}
+          </p>
+        )}
       </section>
       <section className="panel">
         <div className="panel-heading">
@@ -71,12 +82,12 @@ export default function Tasks({
                   <select
                     className="table-select"
                     aria-label={`סטטוס ${t.title}`}
-                    value={t.status}
+                    value={t.status === "באיחור" ? "בטיפול" : t.status}
                     onChange={(e) =>
                       onSave({ ...t, status: e.target.value as TaskStatus })
                     }
                   >
-                    <Options values={statuses} />
+                    {statusOptions}
                   </select>
                 </td>
                 <td>{t.note || "—"}</td>
@@ -120,9 +131,7 @@ export default function Tasks({
               <input required name="due" type="date" />
             </Field>
             <Field label="סטטוס">
-              <select name="status">
-                <Options values={statuses} />
-              </select>
+              <select name="status">{statusOptions}</select>
             </Field>
             <Field label="הערה" className="full">
               <input name="note" />

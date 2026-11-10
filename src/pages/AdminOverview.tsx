@@ -4,11 +4,20 @@ import { demoWorkers } from "../data/auth";
 import { fetchWorkspace } from "../data/cloudWorkspace";
 import type { AppData } from "../types";
 
+type Section = "dashboard" | "car" | "personal" | "clients" | "office";
+const titles: Record<Section, string> = {
+  dashboard: "כל הפרויקטים",
+  car: "דיווחי רכב",
+  personal: "דיווחי מחלה",
+  clients: "לקוחות ומזמיני עבודה",
+  office: "סטטוס פרויקטים משרדי",
+};
+
 export default function AdminOverview({
   section,
   onProject,
 }: {
-  section: "dashboard" | "car" | "personal";
+  section: Section;
   onProject: (owner: string, project: string) => void;
 }) {
   const [workspaces, setWorkspaces] = useState<AppData[]>();
@@ -44,21 +53,38 @@ export default function AdminOverview({
   const scoped = (workspaces ?? []).filter(
     (w) => !owner || w.workers[0]?.id === owner,
   );
-  const title =
-    section === "dashboard"
-      ? "כל הפרויקטים"
-      : section === "car"
-        ? "דיווחי רכב"
-        : "דיווחי מחלה";
+  const title = titles[section];
+  const projectSection =
+    section === "dashboard" || section === "office" || section === "clients";
   const projects = scoped.flatMap((w) =>
     w.projects
       .filter(
         (p) =>
           (!client || p.client === client) &&
-          (!status || p.status === status) &&
+          (!status ||
+            (section === "office"
+              ? (w.office_project_status.find((row) => row.project_id === p.id)
+                  ?.condition ?? "לא סווג") === status
+              : p.status === status)) &&
           matches(p.name, p.client, p.code),
       )
-      .map((project) => ({ project, worker: w.workers[0] })),
+      .map((project) => ({
+        project,
+        worker: w.workers[0],
+        office: w.office_project_status.find(
+          (row) => row.project_id === project.id,
+        ),
+      })),
+  );
+  const groups = new Map<string, typeof projects>();
+  for (const row of projects) {
+    const name = row.project.client.trim() || "מזמין לא צוין";
+    const group = groups.get(name);
+    if (group) group.push(row);
+    else groups.set(name, [row]);
+  }
+  const clientGroups = Array.from(groups).sort(([a], [b]) =>
+    a.localeCompare(b, "he"),
   );
   const mileage = scoped
     .flatMap((w) =>
@@ -91,12 +117,11 @@ export default function AdminOverview({
         matches(worker.name, entry.status),
     )
     .sort((a, b) => b.entry.from_date.localeCompare(a.entry.from_date));
-  const count =
-    section === "dashboard"
-      ? projects.length
-      : section === "car"
-        ? mileage.length
-        : sickness.length;
+  const count = projectSection
+    ? projects.length
+    : section === "car"
+      ? mileage.length
+      : sickness.length;
   return (
     <>
       <div className="page-heading">
@@ -139,7 +164,7 @@ export default function AdminOverview({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Field>
-            {section === "dashboard" ? (
+            {projectSection ? (
               <Field label="מזמין עבודה">
                 <select
                   value={client}
@@ -168,16 +193,18 @@ export default function AdminOverview({
                 />
               </Field>
             )}
-            {section !== "car" && (
+            {section !== "car" && section !== "clients" && (
               <Field label="סטטוס">
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
                   <option value="">הכול</option>
-                  {(section === "dashboard"
-                    ? ["פעיל", "בהמתנה", "הושלם"]
-                    : ["ממתין לאישור", "אושר"]
+                  {(section === "office"
+                    ? ["תקין", "דורש תשומת לב", "דורש טיפול", "לא סווג"]
+                    : section === "dashboard"
+                      ? ["פעיל", "בהמתנה", "הושלם"]
+                      : ["ממתין לאישור", "אושר"]
                   ).map((value) => (
                     <option key={value}>{value}</option>
                   ))}
@@ -215,6 +242,85 @@ export default function AdminOverview({
               ))}
             </Table>
           )}
+          {section === "clients" && (
+            <Table
+              caption={title}
+              headers={[
+                "לקוח / מזמין עבודה",
+                "סה״כ פרויקטים",
+                "פעילים",
+                "מנהלי פרויקטים",
+              ]}
+            >
+              {clientGroups.map(([name, rows]) => (
+                <tr key={name}>
+                  <th scope="row">{name}</th>
+                  <td>{rows.length}</td>
+                  <td>
+                    {rows.filter((row) => row.project.status === "פעיל").length}
+                  </td>
+                  <td>
+                    {Array.from(
+                      new Set(rows.map((row) => row.worker.name)),
+                    ).join(", ")}
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          )}
+          {section === "office" &&
+            managers.map((worker) => {
+              const rows = projects.filter(
+                (row) => row.worker.id === worker.id,
+              );
+              if (!rows.length) return null;
+              return (
+                <section key={worker.id}>
+                  <div className="panel-heading">
+                    <h2>{worker.name}</h2>
+                    <span className="muted">{rows.length} פרויקטים</span>
+                  </div>
+                  <Table
+                    caption={`סטטוס משרדי — ${worker.name}`}
+                    headers={[
+                      "פרויקט",
+                      "מזמין עבודה",
+                      "שלב",
+                      "מצב משרדי",
+                      "עדכון אחרון",
+                      "סטטוס קצר",
+                      "פעולה",
+                    ]}
+                  >
+                    {rows.map(({ project, office }) => (
+                      <tr key={project.id}>
+                        <th scope="row">{project.name}</th>
+                        <td>{project.client || "—"}</td>
+                        <td>{project.current_stage}</td>
+                        <td>
+                          <Badge>{office?.condition ?? "לא סווג"}</Badge>
+                        </td>
+                        <td>
+                          {office?.updated_at
+                            ? new Date(office.updated_at).toLocaleDateString(
+                                "he-IL",
+                              )
+                            : "—"}
+                        </td>
+                        <td>{office?.short_status || "—"}</td>
+                        <td>
+                          <button
+                            onClick={() => onProject(worker.id, project.id)}
+                          >
+                            פתיחת פרויקט
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                </section>
+              );
+            })}
           {section === "car" && (
             <Table
               caption={title}

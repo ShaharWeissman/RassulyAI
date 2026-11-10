@@ -4,6 +4,8 @@ import CompanyBrand from "./CompanyBrand";
 
 const links = [
   { id: "dashboard", label: "פרויקטים", icon: "building" },
+  { id: "clients", label: "לקוחות", icon: "building" },
+  { id: "tasks", label: "משימות", icon: "status" },
   { id: "office", label: "סטטוס משרדית", icon: "status" },
   { id: "billing", label: "מעקב חשבונות", icon: "file" },
   { id: "car", label: "דיווח רכב", icon: "car" },
@@ -51,7 +53,7 @@ export default function AppHeader({
       </div>
       <nav className="header-navigation" aria-label="ניווט ראשי">
         {links
-          .filter((link) => !admin || link.id !== "office")
+          .filter((link) => admin || link.id !== "clients")
           .map((link) => (
             <button
               key={link.id}
@@ -70,11 +72,13 @@ export default function AppHeader({
               onClick={() => onNavigate(link.id)}
             >
               <Icon name={link.icon} size={17} />
-              {admin && link.id === "personal"
-                ? "דיווחי מחלה"
-                : admin && link.id === "car"
-                  ? "דיווחי רכב"
-                  : link.label}
+              {admin && link.id === "dashboard"
+                ? "כלל הפרויקטים"
+                : admin && link.id === "personal"
+                  ? "דיווחי מחלה"
+                  : admin && link.id === "car"
+                    ? "דיווחי רכב"
+                    : link.label}
             </button>
           ))}
       </nav>

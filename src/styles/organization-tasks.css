@@ -1,0 +1,38 @@
+.organization-task-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.organization-task-column {
+  background: #f4f7f7;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.organization-task-column h3 {
+  margin-bottom: 10px;
+}
+.organization-task-column h3 small {
+  margin-inline-start: 5px;
+  color: var(--muted);
+}
+.organization-task-card {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.organization-task-card p {
+  margin: 0;
+}
+@media (max-width: 720px) {
+  .organization-task-columns {
+    grid-template-columns: 1fr;
+  }
+}
