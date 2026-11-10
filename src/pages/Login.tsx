@@ -26,15 +26,8 @@ export default function Login({
         </div>
         <div>
           <span className="eyebrow">רסולי הנדסה · סביבת העבודה שלך</span>
-          <h1>
-            התמונה המלאה.
-            <br />
-            בכל פרויקט.
-          </h1>
-          <p>
-            פרויקטים, משימות והחלטות —<br />
-            במקום אחד, לאורך כל הדרך.
-          </p>
+          <h1>כל הניהול במקום אחד.</h1>
+          <p>פרויקטים, אנשים ותהליכים — עם AI מובנה.</p>
           <div className="engineering-drawing" aria-hidden="true">
             <div />
             <div />
