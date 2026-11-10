@@ -2,25 +2,22 @@ import type { Worker } from "../../types";
 import { Icon } from "./index";
 import CompanyBrand from "./CompanyBrand";
 
-const links = [
-  { id: "dashboard", label: "פרויקטים", icon: "building" },
-  { id: "clients", label: "לקוחות", icon: "building" },
-  { id: "tasks", label: "משימות", icon: "status" },
-  { id: "office", label: "סטטוס משרדית", icon: "status" },
-  { id: "billing", label: "מעקב חשבונות", icon: "file" },
-  { id: "car", label: "דיווח רכב", icon: "car" },
-  { id: "personal", label: "אישי · חופשה / מחלה", icon: "user" },
-];
+import TwoLevelNavigation from "./TwoLevelNavigation";
+import type { ProjectDestination } from "../../data/navigation";
 
 export default function AppHeader({
   worker,
   page,
+  module,
+  onProjectNavigate,
   title,
   onNavigate,
   onLogout,
 }: {
   worker: Worker;
   page: string;
+  module: string;
+  onProjectNavigate: (module: ProjectDestination) => void;
   title?: string;
   onNavigate: (page: string) => void;
   onLogout: () => void;
@@ -51,37 +48,13 @@ export default function AppHeader({
           <strong>{title}</strong>
         </span>
       </div>
-      <nav className="header-navigation" aria-label="ניווט ראשי">
-        {links
-          .filter((link) => admin || link.id !== "clients")
-          .map((link) => (
-            <button
-              key={link.id}
-              className={
-                page === link.id ||
-                (page === "project" && link.id === "dashboard")
-                  ? "active"
-                  : ""
-              }
-              aria-current={
-                page === link.id ||
-                (page === "project" && link.id === "dashboard")
-                  ? "page"
-                  : undefined
-              }
-              onClick={() => onNavigate(link.id)}
-            >
-              <Icon name={link.icon} size={17} />
-              {admin && link.id === "dashboard"
-                ? "כלל הפרויקטים"
-                : admin && link.id === "personal"
-                  ? "דיווחי מחלה"
-                  : admin && link.id === "car"
-                    ? "דיווחי רכב"
-                    : link.label}
-            </button>
-          ))}
-      </nav>
+      <TwoLevelNavigation
+        admin={admin}
+        page={page}
+        module={module}
+        onNavigate={onNavigate}
+        onProjectNavigate={onProjectNavigate}
+      />
       <div className="header-user">
         <span className="user-role">
           {admin ? "מנהל מערכת" : "מנהל פרויקט"}

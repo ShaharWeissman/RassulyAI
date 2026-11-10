@@ -32,6 +32,17 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
       </>
     ),
     arrow: <path d="M19 12H5m6-6-6 6 6 6" />,
+    "chevron-down": <path d="m6 9 6 6 6-6" />,
+    calendar: <path d="M8 3v4m8-4v4M4 10h16M5 5h14l1 1v14l-1 1H5l-1-1V6z" />,
+    search: (
+      <>
+        <circle cx="10.5" cy="10.5" r="6.5" />
+        <path d="m16 16 4 4" />
+      </>
+    ),
+    sparkles: (
+      <path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5zM5 3v4M3 5h4m12 12v4m-2-2h4" />
+    ),
     logout: <path d="M9 4H4v16h5M13 12h8m-4-4 4 4-4 4" />,
     check: <path d="m5 12 4 4L19 6" />,
     file: (

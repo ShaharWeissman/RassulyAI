@@ -18,15 +18,8 @@ import AdminOverview from "./pages/AdminOverview";
 import OrganizationTasks from "./pages/OrganizationTasks";
 import CarReport from "./components/dashboard/CarReport";
 import Personal from "./components/dashboard/Personal";
-const navigation = [
-  { id: "dashboard", title: "פרויקטים", icon: "grid" },
-  { id: "car", title: "דיווח רכב", icon: "car" },
-  { id: "personal", title: "אישי", icon: "user" },
-  { id: "office", title: "סטטוס פרויקט משרדית", icon: "status" },
-  { id: "clients", title: "לקוחות", icon: "building" },
-  { id: "tasks", title: "משימות", icon: "status" },
-  { id: "billing", title: "מעקב חשבונות משרדיים", icon: "file" },
-];
+import { navigationPageTitle } from "./data/navigation";
+
 export default function App() {
   const [worker, setWorker] = useState<Worker | null>(null);
   const {
@@ -56,6 +49,15 @@ export default function App() {
     setPage(target);
     setNotice("");
     window.scrollTo({ top: 0 });
+  };
+  const selectProjectModule = (target: string) => {
+    setModule(target);
+    setNotice("");
+    requestAnimationFrame(() => {
+      const content = document.getElementById("project-module-content");
+      content?.focus({ preventScroll: true });
+      content?.scrollIntoView({ block: "start" });
+    });
   };
   const openProject = (id: string) => {
     if (!assignedIds.includes(id)) return;
@@ -164,9 +166,7 @@ export default function App() {
   const title =
     page === "project"
       ? data.projects.find((p) => p.id === projectId)!.name
-      : supervisor && page === "personal"
-        ? "דיווחי מחלה"
-        : navigation.find((n) => n.id === page)?.title;
+      : navigationPageTitle(page, supervisor);
   return (
     <div className={`app-shell ${page === "project" ? "is-project" : ""}`}>
       <a className="skip-link" href="#main-content">
@@ -178,7 +178,16 @@ export default function App() {
           worker={worker}
           page={page}
           title={title}
-          onNavigate={navigate}
+          module={module}
+          onProjectNavigate={selectProjectModule}
+          onNavigate={(target) => {
+            navigate(target);
+            requestAnimationFrame(() =>
+              document
+                .getElementById("main-content")
+                ?.focus({ preventScroll: true }),
+            );
+          }}
           onLogout={() => {
             if (switching) return;
             if (pending) {
@@ -261,17 +270,7 @@ export default function App() {
                 isAdmin={supervisor}
                 openIds={openIds}
                 module={module}
-                onModule={(m) => {
-                  setModule(m);
-                  setNotice("");
-                  requestAnimationFrame(() => {
-                    const content = document.getElementById(
-                      "project-module-content",
-                    );
-                    content?.focus({ preventScroll: true });
-                    content?.scrollIntoView({ block: "start" });
-                  });
-                }}
+                onModule={selectProjectModule}
                 onOpen={openProject}
                 onProjectSave={saveProject}
                 onOfficeSave={saveOffice}
