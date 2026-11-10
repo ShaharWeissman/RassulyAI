@@ -205,7 +205,6 @@ export default function TwoLevelNavigation({
           >
             <Icon name={group.icon} size={16} />
             {group.label}
-            <Icon name="chevron-down" size={12} />
           </button>
         ))}
       </div>
@@ -222,11 +221,14 @@ export default function TwoLevelNavigation({
           event.preventDefault();
           open("all");
           requestAnimationFrame(() =>
-            secondary.current?.querySelector("button")?.focus(),
+            secondary.current
+              ?.querySelector<HTMLButtonElement>("button:not(:disabled)")
+              ?.focus(),
           );
         }}
       >
-        <Icon name="grid" size={16} /> כל המסכים{" "}
+        <Icon name="grid" size={16} />
+        <span className="all-navigation-label">כל המסכים</span>
         <Icon name="chevron-down" size={12} />
       </button>
       {allOpen && (
@@ -237,17 +239,14 @@ export default function TwoLevelNavigation({
           role="group"
           aria-labelledby={`${id}-all`}
         >
-          {groups.map((group) => {
-            const items = group.items.filter(available);
-            return items.length ? (
-              <section className="navigation-directory-group" key={group.id}>
-                <h2>
-                  <Icon name={group.icon} size={17} /> {group.label}
-                </h2>
-                {items.map(renderItem)}
-              </section>
-            ) : null;
-          })}
+          {groups.map((group) => (
+            <section className="navigation-directory-group" key={group.id}>
+              <h2>
+                <Icon name={group.icon} size={17} /> {group.label}
+              </h2>
+              {group.items.map(renderItem)}
+            </section>
+          ))}
         </div>
       )}
       {expanded && (

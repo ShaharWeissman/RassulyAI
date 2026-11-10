@@ -165,7 +165,7 @@ const groups: NavigationGroup[] = [
   },
   {
     id: "admin",
-    label: "ניהול מערכת",
+    label: "ניהול",
     icon: "status",
     audience: "admin",
     items: [

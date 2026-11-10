@@ -337,6 +337,11 @@ export default function OfficeBilling() {
                 </li>
               ))}
             </ol>
+            {!admin && step < 4 && (
+              <p className="muted">
+                רק מנהל מערכת יכול לקדם את מחזור החשבונות לשלב הבא.
+              </p>
+            )}
             {admin && (
               <div className="billing-actions">
                 {step < 4 && (
@@ -603,7 +608,7 @@ export default function OfficeBilling() {
               />
             </section>
           )}
-          {transition !== undefined && (
+          {admin && transition !== undefined && (
             <Modal
               title="אישור מעבר תחנה"
               onClose={() => !busy && setTransition(undefined)}
