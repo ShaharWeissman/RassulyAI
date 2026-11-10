@@ -319,10 +319,10 @@
 }
 .company-brand-copy strong {
   color: #203735;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Arial, "Segoe UI", sans-serif;
   font-size: 21px;
   font-weight: 700;
-  letter-spacing: -0.4px;
+  letter-spacing: normal;
 }
 .company-brand-copy small {
   color: #687e83;
