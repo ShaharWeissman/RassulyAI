@@ -4,6 +4,7 @@ import FileSkillAction from "../components/ui/FileSkillAction";
 import { demoWorkers } from "../data/auth";
 import { approveLeaveRequest, fetchWorkspace } from "../data/cloudWorkspace";
 import type { AppData } from "../types";
+import { downloadExcel, workbookBytes } from "../utils/excel";
 
 type Section = "dashboard" | "car" | "personal" | "clients" | "office";
 const titles: Record<Section, string> = {
@@ -13,6 +14,7 @@ const titles: Record<Section, string> = {
   clients: "לקוחות ומזמיני עבודה",
   office: "סטטוס פרויקטים משרדי",
 };
+const mileageHeaders = ["מנהל פרויקט", "רכב", "חודש", "קילומטרז׳", "הערות"];
 
 export default function AdminOverview({
   section,
@@ -125,6 +127,23 @@ export default function AdminOverview({
     : section === "car"
       ? mileage.length
       : requests.length;
+  function exportMileage() {
+    const rows = mileage.map(({ worker, vehicle, entry }) =>
+      [worker.name, vehicle, entry.month, entry.odometer, entry.note].map(
+        (value) => ({ value }),
+      ),
+    );
+    const workbook = workbookBytes([
+      {
+        name: titles.car,
+        headerRow: 1,
+        dataEndRow: rows.length + 1,
+        widths: [26, 28, 14, 16, 45],
+        rows: [mileageHeaders.map((value) => ({ value, style: 1 })), ...rows],
+      },
+    ]);
+    downloadExcel(workbook, period ? `דיווחי רכב - ${period}` : titles.car);
+  }
   async function approve(workerId: string, requestId: string) {
     if (approving) return;
     setApproving(true);
@@ -161,6 +180,15 @@ export default function AdminOverview({
           <p className="muted">נתונים מכל מנהלי הפרויקטים.</p>
         </div>
         <div className="inline-actions">
+          {section === "car" && (
+            <button
+              className="primary"
+              disabled={!mileage.length}
+              onClick={exportMileage}
+            >
+              ייצוא לאקסל
+            </button>
+          )}
           {section === "office" && (
             <FileSkillAction
               context="סטטוס פרויקטים משרדי"
@@ -379,7 +407,7 @@ export default function AdminOverview({
           {section === "car" && (
             <Table
               caption={title}
-              headers={["מנהל פרויקט", "רכב", "חודש", "קילומטרז׳", "הערות"]}
+              headers={mileageHeaders}
             >
               {mileage.map(({ entry, worker, vehicle }) => (
                 <tr key={`${worker.id}/${entry.id}`}>
