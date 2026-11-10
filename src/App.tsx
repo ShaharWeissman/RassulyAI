@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type {
-  AppData,
   OfficeProjectStatus as OfficeStatus,
   Project,
   Worker,
 } from "./types";
 import { assignedProjectIds } from "./data/auth";
-import { loadWorkspace, saveWorkspace } from "./data/workspaceStorage";
+import { useWorkspace } from "./data/useWorkspace";
+import { cloudEnabled, signOut } from "./data/cloudWorkspace";
 import { Icon } from "./components/ui";
 import AppHeader from "./components/ui/AppHeader";
 import Login from "./pages/Login";
@@ -24,18 +24,24 @@ const navigation = [
 export default function App() {
   const [worker, setWorker] = useState<Worker | null>(null);
   const currentWorkerId = worker?.id ?? "";
-  const [data, setData] = useState<AppData>(loadWorkspace);
-  const [storageWarning, setStorageWarning] = useState(false);
+  const {
+    data,
+    setData,
+    initialize,
+    pending,
+    saving,
+    error,
+    retry,
+    downloadBackup,
+  } = useWorkspace();
   const [page, setPage] = useState("dashboard");
   const [projectId, setProjectId] = useState("");
   const [openIds, setOpenIds] = useState<string[]>([]);
   const [module, setModule] = useState("data");
   const [notice, setNotice] = useState("");
-  useEffect(() => {
-    setStorageWarning(!saveWorkspace(data));
-  }, [data]);
   const assignedIds = assignedProjectIds(data, currentWorkerId);
-  const notify = (message = "השינויים נשמרו בהצלחה") => setNotice(message);
+  const notify = (message = "השינויים נשמרו בהצלחה") =>
+    setNotice(cloudEnabled ? "" : message);
   const navigate = (target: string) => {
     setPage(target);
     setNotice("");
@@ -113,7 +119,8 @@ export default function App() {
   if (!worker)
     return (
       <Login
-        onLogin={(selected) => {
+        onLogin={(selected, workspace) => {
+          if (workspace) initialize(workspace.data, workspace.revision);
           setWorker(selected);
           setProjectId("");
           setOpenIds([]);
@@ -141,6 +148,13 @@ export default function App() {
           title={title}
           onNavigate={navigate}
           onLogout={() => {
+            if (pending) {
+              setNotice(
+                "יש שינויים שטרם נשמרו. יש להמתין לשמירה או להוריד גיבוי.",
+              );
+              return;
+            }
+            void signOut();
             setWorker(null);
             setPage("dashboard");
             setProjectId("");
@@ -151,11 +165,18 @@ export default function App() {
         />
         <main id="main-content" tabIndex={-1}>
           <div className="content-wrap">
-            {storageWarning && (
-              <p role="alert" className="error">
-                השמירה בדפדפן אינה זמינה. השינויים יישמרו רק עד רענון העמוד.
-              </p>
-            )}
+            <div className="notice" role="status">
+              <span>
+                {error ||
+                  (pending || saving
+                    ? "שומר שינויים…"
+                    : cloudEnabled
+                      ? "מחובר לשרת · כל השינויים נשמרו"
+                      : "מצב מקומי · נשמר בדפדפן בלבד")}
+              </span>
+              {error && <button onClick={retry}>ניסיון שמירה נוסף</button>}
+              <button onClick={downloadBackup}>הורדת גיבוי</button>
+            </div>
             {notice && (
               <div className="notice" role="status">
                 <Icon name="check" size={18} />
