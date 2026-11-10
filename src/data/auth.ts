@@ -1,9 +1,9 @@
 import type { Worker } from "../types";
 
 export const demoWorkers: Worker[] = [
-  { id: "admin", name: "מנהל מערכת", email: "tadmin@example.com" },
-  { id: "shahar", name: "שחר וייסמן", email: "tshaharw@example.com" },
-  { id: "nave", name: "נווה", email: "tnave@example.com" },
+  { id: "admin", name: "מנהל מערכת", email: "tadmin@rassuly-eng.co.il" },
+  { id: "shahar", name: "שחר וייסמן", email: "tshaharw@rassuly-eng.co.il" },
+  { id: "nave", name: "נווה", email: "tnave@rassuly-eng.co.il" },
 ];
 
 // Demo-only validation. A deployed internal system needs server-side authentication.
