@@ -47,9 +47,9 @@
   position: absolute;
   inset-inline: 0;
   top: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
-  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 14px;
   padding: 28px clamp(18px, 4vw, 60px);
   max-height: min(72dvh, 720px);
@@ -69,6 +69,16 @@
   font-size: 18px;
   text-align: start;
   white-space: normal;
+  border-color: transparent;
+}
+.reference-topbar .header-navigation .secondary-navigation button.active {
+  background: #28504e;
+}
+.reference-topbar
+  .header-navigation
+  .secondary-navigation
+  button:hover:not(:disabled) {
+  background: #28504e;
 }
 .secondary-navigation.navigation-directory {
   display: grid;
