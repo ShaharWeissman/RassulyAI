@@ -3,17 +3,17 @@
   z-index: 25;
 }
 .reference-topbar .two-level-navigation {
-  flex: 1 1 360px;
+  flex: 0 1 auto;
   min-width: 0;
   overflow: visible;
   gap: 6px;
 }
 .primary-navigation {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  flex: 1 1 auto;
-  gap: 4px;
+  display: flex;
+  gap: 6px;
   min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
   padding: 2px;
 }
 .reference-topbar .header-navigation .primary-navigation-trigger {
@@ -22,44 +22,18 @@
   justify-content: center;
   gap: 6px;
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 650;
   padding-inline: 9px;
 }
 .reference-topbar .all-navigation-trigger {
   border-color: #4f746e;
 }
-.primary-navigation-icons {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
 .navigation-chevron {
   display: inline-flex;
 }
 .primary-navigation-trigger[aria-expanded="true"] .navigation-chevron {
   transform: rotate(180deg);
-}
-.reference-topbar .header-navigation .primary-navigation > button {
-  flex-direction: column;
-  gap: 2px;
-  min-height: 43px;
-  padding: 4px;
-  border-radius: 9px;
-  background: #21332f;
-}
-.reference-topbar .header-navigation .primary-navigation > button.active {
-  background: #177f8c;
-}
-.reference-topbar
-  .header-navigation
-  .primary-navigation
-  > button:hover:not(.active),
-.reference-topbar
-  .header-navigation
-  .primary-navigation
-  > button[aria-expanded="true"]:not(.active) {
-  background: #28504e;
 }
 .reference-topbar .primary-navigation-trigger[aria-expanded="true"] {
   border-color: #4c969c;
@@ -73,11 +47,13 @@
   position: absolute;
   inset-inline: 0;
   top: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px clamp(16px, 3vw, 36px);
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
+  align-items: start;
+  gap: 14px;
+  padding: 28px clamp(18px, 4vw, 60px);
+  max-height: min(72dvh, 720px);
+  overflow: auto;
   scrollbar-width: thin;
   background: #223632;
   border-block: 1px solid #405853;
@@ -87,20 +63,19 @@
 .reference-topbar .header-navigation .secondary-navigation button {
   display: inline-flex;
   align-items: center;
-  flex: 0 0 auto;
-  gap: 8px;
-  min-height: 56px;
-  padding-inline: 18px;
-  font-size: 17px;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 18px;
+  font-size: 18px;
+  text-align: start;
+  white-space: normal;
 }
 .secondary-navigation.navigation-directory {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
-  gap: 18px;
-  padding: 26px clamp(16px, 4vw, 60px);
-  max-height: min(76dvh, 720px);
-  overflow: auto;
+  gap: 24px;
+  padding-block: 32px;
   border-radius: 0 0 18px 18px;
 }
 .navigation-directory-group {

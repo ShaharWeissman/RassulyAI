@@ -198,13 +198,11 @@ export default function TwoLevelNavigation({
               }
             }}
           >
-            <span className="primary-navigation-icons" aria-hidden="true">
-              <Icon name={group.icon} size={16} />
-              <span className="navigation-chevron">
-                <Icon name="chevron-down" size={12} />
-              </span>
-            </span>
+            <Icon name={group.icon} size={14} />
             {group.label}
+            <span className="navigation-chevron" aria-hidden="true">
+              <Icon name="chevron-down" size={12} />
+            </span>
           </button>
         ))}
       </div>
