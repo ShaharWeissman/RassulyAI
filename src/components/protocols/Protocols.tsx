@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Protocol, ProtocolItem, TaskStatus } from "../../types";
 import { Badge, Empty, Field, Options } from "../ui";
+import { cloudClient } from "../../data/cloudWorkspace";
 const newItem = (): ProtocolItem => ({
   id: crypto.randomUUID(),
   title: "",
@@ -10,16 +11,51 @@ const newItem = (): ProtocolItem => ({
 });
 export default function Protocols({
   projectId,
+  workspaceId,
   protocols,
   onSave,
 }: {
   projectId: string;
+  workspaceId: string;
   protocols: Protocol[];
   onSave: (p: Protocol) => void;
 }) {
   const [creating, setCreating] = useState(false);
   const [items, setItems] = useState<ProtocolItem[]>([newItem()]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [audio, setAudio] = useState<File>();
+  const [transcript, setTranscript] = useState("");
+  const [transcribing, setTranscribing] = useState(false);
+  const [transcriptionError, setTranscriptionError] = useState("");
+  async function transcribe() {
+    if (!cloudClient || !audio || transcribing) return;
+    if (!audio.size || audio.size > 24_000_000) {
+      setTranscriptionError("יש לבחור הקלטה בגודל עד 24 מגה.");
+      return;
+    }
+    setTranscribing(true);
+    setTranscriptionError("");
+    try {
+      const form = new FormData();
+      form.set("file", audio);
+      const { data, error } = await cloudClient.functions.invoke(
+        "transcribe-meeting",
+        {
+          body: form,
+          headers: { "x-project-id": projectId, "x-workspace-id": workspaceId },
+        },
+      );
+      if (error || typeof data?.text !== "string")
+        throw new Error("התמלול נכשל. בדוק ששירות התמלול פעיל ונסה שוב.");
+      setTranscript(data.text);
+    } catch (error) {
+      setTranscriptionError(
+        error instanceof Error ? error.message : "התמלול נכשל.",
+      );
+    } finally {
+      setTranscribing(false);
+    }
+  }
   const update = (id: string, change: Partial<ProtocolItem>) =>
     setItems(items.map((i) => (i.id === id ? { ...i, ...change } : i)));
   const protocol = protocols.find((p) => p.id === selected);
@@ -33,8 +69,12 @@ export default function Protocols({
           </div>
           <button
             className="primary"
+            disabled={transcribing}
             onClick={() => {
               setItems([newItem()]);
+              setAudio(undefined);
+              setTranscript("");
+              setTranscriptionError("");
               setCreating(true);
               setSelected(null);
             }}
@@ -75,6 +115,7 @@ export default function Protocols({
             className="form-grid"
             onSubmit={(e) => {
               e.preventDefault();
+              if (transcribing) return;
               const f = new FormData(e.currentTarget);
               const files = f
                 .getAll("attachments")
@@ -86,6 +127,7 @@ export default function Protocols({
                 date: String(f.get("date")),
                 participants: String(f.get("participants")),
                 summary: String(f.get("summary")),
+                ...(transcript.trim() && { transcript: transcript.trim() }),
                 items,
                 attachments: files.map((file) => ({
                   name: file.name,
@@ -126,6 +168,48 @@ export default function Protocols({
             <Field label="סיכום / החלטות" className="full">
               <textarea required name="summary" rows={3} />
             </Field>
+            <section className="full">
+              <h3>תמלול הקלטת ישיבה</h3>
+              {cloudClient ? (
+                <>
+                  <Field label="קובץ אודיו, עד 24 מגה">
+                    <input
+                      type="file"
+                      accept=".mp3,.mp4,.mpeg,.mpga,.m4a,.wav,.webm"
+                      disabled={transcribing}
+                      onChange={(event) => {
+                        setAudio(event.target.files?.[0]);
+                        setTranscriptionError("");
+                      }}
+                    />
+                  </Field>
+                  <p className="muted">
+                    לחיצה על תמלול שולחת את ההקלטה ל־OpenAI לעיבוד. הטקסט נשמר
+                    בפרוטוקול לאחר שמירה.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={!audio || transcribing}
+                    onClick={() => void transcribe()}
+                  >
+                    {transcribing ? "מתמלל את ההקלטה…" : "תמלול קובץ אודיו"}
+                  </button>
+                  {transcriptionError && (
+                    <p role="alert">{transcriptionError}</p>
+                  )}
+                </>
+              ) : (
+                <p className="muted">תמלול זמין בחיבור לשרת.</p>
+              )}
+              <Field label="תמלול מלא">
+                <textarea
+                  rows={7}
+                  value={transcript}
+                  disabled={transcribing}
+                  onChange={(event) => setTranscript(event.target.value)}
+                />
+              </Field>
+            </section>
             <div className="full">
               <div className="section-heading compact">
                 <h3>משימות / החלטות</h3>
@@ -217,6 +301,12 @@ export default function Protocols({
             <dd>{protocol.participants}</dd>
             <dt>סיכום / החלטות</dt>
             <dd className="preserve-whitespace">{protocol.summary}</dd>
+            {protocol.transcript && (
+              <>
+                <dt>תמלול ישיבה</dt>
+                <dd className="preserve-whitespace">{protocol.transcript}</dd>
+              </>
+            )}
           </dl>
           <h3>משימות / החלטות</h3>
           {protocol.items.map((i, index) => (

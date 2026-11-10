@@ -4,7 +4,7 @@ import type {
   Project,
   Worker,
 } from "./types";
-import { assignedProjectIds, demoWorkers } from "./data/auth";
+import { assignedProjectIds } from "./data/auth";
 import { useWorkspace } from "./data/useWorkspace";
 import { cloudEnabled, fetchWorkspace, signOut } from "./data/cloudWorkspace";
 import { Icon } from "./components/ui";
@@ -13,6 +13,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProjectWorkspace from "./pages/ProjectWorkspace";
 import OfficeProjectStatus from "./pages/OfficeProjectStatus";
+import OfficeBilling from "./pages/OfficeBilling";
+import AdminOverview from "./pages/AdminOverview";
 import CarReport from "./components/dashboard/CarReport";
 import Personal from "./components/dashboard/Personal";
 const navigation = [
@@ -20,6 +22,7 @@ const navigation = [
   { id: "car", title: "דיווח רכב", icon: "car" },
   { id: "personal", title: "אישי", icon: "user" },
   { id: "office", title: "סטטוס פרויקט משרדית", icon: "status" },
+  { id: "billing", title: "מעקב חשבונות משרדיים", icon: "file" },
 ];
 export default function App() {
   const [worker, setWorker] = useState<Worker | null>(null);
@@ -59,6 +62,26 @@ export default function App() {
     setModule("data");
     setNotice("");
     window.scrollTo({ top: 0 });
+  };
+  const openAdminProject = async (owner: string, id: string) => {
+    if (!supervisor || switching) return;
+    if (pending) {
+      setNotice("יש להמתין לסיום השמירה לפני מעבר לפרויקט אחר.");
+      return;
+    }
+    setSwitching(true);
+    try {
+      const workspace = await fetchWorkspace(owner);
+      initialize(workspace.data, workspace.revision);
+      setProjectId(id);
+      setOpenIds([id]);
+      setModule("data");
+      navigate("project");
+    } catch {
+      setNotice("לא ניתן לפתוח את הפרויקט.");
+    } finally {
+      setSwitching(false);
+    }
   };
   const saveOffice = (s: OfficeStatus) => {
     if (!assignedIds.includes(s.project_id)) return;
@@ -138,7 +161,9 @@ export default function App() {
   const title =
     page === "project"
       ? data.projects.find((p) => p.id === projectId)!.name
-      : navigation.find((n) => n.id === page)?.title;
+      : supervisor && page === "personal"
+        ? "דיווחי מחלה"
+        : navigation.find((n) => n.id === page)?.title;
   return (
     <div className={`app-shell ${page === "project" ? "is-project" : ""}`}>
       <a className="skip-link" href="#main-content">
@@ -152,6 +177,7 @@ export default function App() {
           title={title}
           onNavigate={navigate}
           onLogout={() => {
+            if (switching) return;
             if (pending) {
               setNotice(
                 "יש שינויים שטרם נשמרו. יש להמתין לשמירה או להוריד גיבוי.",
@@ -169,41 +195,6 @@ export default function App() {
         />
         <main id="main-content" tabIndex={-1} inert={switching}>
           <div className="content-wrap">
-            {cloudEnabled && supervisor && (
-              <label className="notice">
-                סביבת עבודה — גישה לכל המידע
-                <select
-                  value={currentWorkerId}
-                  disabled={pending || switching}
-                  onChange={async (event) => {
-                    const id = event.target.value;
-                    setSwitching(true);
-                    try {
-                      const workspace = await fetchWorkspace(id);
-                      initialize(workspace.data, workspace.revision);
-                      setPage("dashboard");
-                      setOpenIds([]);
-                      setProjectId("");
-                      setNotice("");
-                    } catch (reason) {
-                      setNotice(
-                        reason instanceof Error
-                          ? reason.message
-                          : "טעינת הנתונים נכשלה",
-                      );
-                    } finally {
-                      setSwitching(false);
-                    }
-                  }}
-                >
-                  {demoWorkers.map((person) => (
-                    <option key={person.id} value={person.id}>
-                      {person.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
             <div className="notice" role="status">
               <span>
                 {error ||
@@ -225,7 +216,17 @@ export default function App() {
                 </button>
               </div>
             )}
-            {page === "dashboard" && (
+            {supervisor &&
+              (page === "dashboard" ||
+                page === "car" ||
+                page === "personal") && (
+                <AdminOverview
+                  key={page}
+                  section={page}
+                  onProject={(owner, id) => void openAdminProject(owner, id)}
+                />
+              )}
+            {!supervisor && page === "dashboard" && (
               <Dashboard
                 data={userData}
                 workerName={
@@ -297,6 +298,7 @@ export default function App() {
                 }}
               />
             )}{" "}
+            {page === "billing" && <OfficeBilling />}
             {page === "office" && (
               <OfficeProjectStatus
                 data={userData}
@@ -304,7 +306,7 @@ export default function App() {
                 onOpen={openProject}
               />
             )}{" "}
-            {page === "car" && (
+            {!supervisor && page === "car" && (
               <>
                 <div className="page-heading">
                   <div>
@@ -328,7 +330,7 @@ export default function App() {
                 />
               </>
             )}{" "}
-            {page === "personal" && (
+            {!supervisor && page === "personal" && (
               <>
                 <div className="page-heading">
                   <div>

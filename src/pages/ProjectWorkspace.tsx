@@ -203,6 +203,7 @@ export default function ProjectWorkspace({
         {module === "protocols" && (
           <Protocols
             projectId={p.id}
+            workspaceId={data.workers[0]?.id ?? ""}
             protocols={data.protocols.filter((pr) => pr.project_id === p.id)}
             onSave={onProtocolSave}
           />

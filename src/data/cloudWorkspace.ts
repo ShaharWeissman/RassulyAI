@@ -7,7 +7,8 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const cloudEnabled = Boolean(url && key);
 export const configurationMissing =
   !cloudEnabled && (!import.meta.env.DEV || Boolean(url || key));
-const client = cloudEnabled ? createClient(url, key) : null;
+export const cloudClient = cloudEnabled ? createClient(url, key) : null;
+const client = cloudClient;
 
 export interface CloudWorkspace {
   data: AppData;
@@ -31,6 +32,7 @@ let activeWorkerId: string | null = null;
 
 export async function fetchWorkspace(
   targetWorkerId: string | null = null,
+  selectForEditing = true,
 ): Promise<CloudWorkspace> {
   if (!client) throw new Error("חיבור השרת טרם הוגדר.");
   const { data, error } = await client.rpc("load_workspace", {
@@ -51,7 +53,7 @@ export async function fetchWorkspace(
     throw new Error(
       "השרת החזיר נתונים לא תקינים. יש לבדוק את הגדרת סביבת העבודה.",
     );
-  activeWorkerId = targetWorkerId;
+  if (selectForEditing) activeWorkerId = targetWorkerId;
   return data as CloudWorkspace;
 }
 

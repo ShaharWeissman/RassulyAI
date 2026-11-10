@@ -84,6 +84,7 @@ export interface ProtocolItem {
   status: TaskStatus;
 }
 export interface Protocol {
+  transcript?: string;
   id: string;
   project_id: string;
   protocol_type: string;
