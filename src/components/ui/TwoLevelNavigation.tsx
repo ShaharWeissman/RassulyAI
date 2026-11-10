@@ -198,7 +198,12 @@ export default function TwoLevelNavigation({
               }
             }}
           >
-            <Icon name={group.icon} size={16} />
+            <span className="primary-navigation-icons" aria-hidden="true">
+              <Icon name={group.icon} size={16} />
+              <span className="navigation-chevron">
+                <Icon name="chevron-down" size={12} />
+              </span>
+            </span>
             {group.label}
           </button>
         ))}
@@ -224,7 +229,9 @@ export default function TwoLevelNavigation({
       >
         <Icon name="grid" size={16} />
         <span className="all-navigation-label">כל המסכים</span>
-        <Icon name="chevron-down" size={12} />
+        <span className="navigation-chevron" aria-hidden="true">
+          <Icon name="chevron-down" size={12} />
+        </span>
       </button>
       {allOpen && (
         <div
