@@ -1,4 +1,34 @@
 /* Workspace styling based on the user's engineering dashboard reference. */
+.development-view {
+  position: fixed;
+  inset-inline-start: 16px;
+  bottom: 16px;
+  z-index: 39;
+  font-size: 12px;
+}
+.development-view summary,
+.development-view-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+.development-view summary {
+  padding: 7px 10px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.development-view-panel {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: calc(100% + 8px);
+  display: grid;
+  gap: 8px;
+  width: 190px;
+  padding: 12px;
+}
+.development-view-panel button {
+  justify-self: start;
+}
 .reference-topbar .return-personal-dashboard {
   position: fixed;
   bottom: 20px;

@@ -195,18 +195,28 @@ export default function App() {
         />
         <main id="main-content" tabIndex={-1} inert={switching}>
           <div className="content-wrap">
-            <div className="notice" role="status">
-              <span>
-                {error ||
-                  (pending || saving
-                    ? "שומר שינויים…"
-                    : cloudEnabled
-                      ? "מחובר לשרת · כל השינויים נשמרו"
-                      : "מצב מקומי · נשמר בדפדפן בלבד")}
-              </span>
-              {error && <button onClick={retry}>ניסיון שמירה נוסף</button>}
-              <button onClick={downloadBackup}>הורדת גיבוי</button>
-            </div>
+            {import.meta.env.DEV && (
+              <details className="development-view">
+                <summary>תצוגת פיתוח</summary>
+                <div className="development-view-panel">
+                  <span role="status">
+                    {pending || saving
+                      ? "יש שינויים שממתינים לשמירה"
+                      : cloudEnabled
+                        ? "מחובר לשרת"
+                        : "מצב מקומי · נשמר בדפדפן בלבד"}
+                  </span>
+                  <button onClick={downloadBackup}>הורדת גיבוי</button>
+                </div>
+              </details>
+            )}
+            {error && (
+              <div className="notice" role="alert">
+                <span>{error}</span>
+                <button onClick={retry}>ניסיון שמירה נוסף</button>
+                <button onClick={downloadBackup}>הורדת גיבוי</button>
+              </div>
+            )}
             {notice && (
               <div className="notice" role="status">
                 <Icon name="check" size={18} />
