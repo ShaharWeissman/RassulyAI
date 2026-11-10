@@ -451,6 +451,44 @@ export default function App() {
                     }));
                     notify("עלויות הפרויקט עודכנו");
                   }}
+                  onCostsImport={(id, result) => {
+                    if (!assignedIds.includes(id)) return;
+                    setData((d) => ({
+                      ...d,
+                      project_costs: result.costs.length
+                        ? [
+                            ...d.project_costs.filter(
+                              (cost) => cost.project_id !== id,
+                            ),
+                            ...result.costs.map((cost) => {
+                              const existing = d.project_costs.find(
+                                (item) =>
+                                  item.project_id === id &&
+                                  item.chapter === cost.chapter &&
+                                  item.data_source === "manual",
+                              );
+                              return existing
+                                ? {
+                                    ...cost,
+                                    id: existing.id,
+                                    approved: existing.approved,
+                                    actual: existing.actual,
+                                    exceptions: existing.exceptions,
+                                  }
+                                : cost;
+                            }),
+                          ]
+                        : d.project_costs,
+                      projects: result.items.length
+                        ? d.projects.map((project) =>
+                            project.id === id
+                              ? { ...project, variance_items: result.items }
+                              : project,
+                          )
+                        : d.projects,
+                    }));
+                    notify("קובץ העלויות נקלט בפרויקט");
+                  }}
                   onTaskSave={(t) => {
                     if (!assignedIds.includes(t.project_id)) return;
                     setData((d) => ({

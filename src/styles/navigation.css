@@ -5,6 +5,7 @@
 .reference-topbar .two-level-navigation {
   min-width: 0;
   overflow: visible;
+  gap: 6px;
 }
 .primary-navigation {
   display: flex;
@@ -15,12 +16,17 @@
   padding: 2px;
   scrollbar-width: thin;
 }
-.reference-topbar .primary-navigation-trigger {
+.reference-topbar .header-navigation .primary-navigation-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   flex-shrink: 0;
+  font-size: 13px;
+  padding-inline: 9px;
+}
+.reference-topbar .all-navigation-trigger {
+  border-color: #4f746e;
 }
 .reference-topbar .primary-navigation-trigger[aria-expanded="true"] {
   border-color: #4c969c;
@@ -45,11 +51,44 @@
   box-shadow: 0 6px 14px #12252026;
   animation: secondary-navigation-in 160ms ease-out;
 }
-.reference-topbar .secondary-navigation button {
+.reference-topbar .header-navigation .secondary-navigation button {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
   gap: 6px;
+  font-size: 14px;
+}
+.secondary-navigation.navigation-directory {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
+  align-items: start;
+  gap: 12px;
+  padding: 12px 16px;
+  max-height: min(65dvh, 520px);
+  overflow: auto;
+  border-radius: 0 0 18px 18px;
+}
+.navigation-directory-group {
+  padding: 9px;
+  background: #304641;
+  border-radius: 12px;
+  min-width: 0;
+}
+.navigation-directory-group h2 {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 5px;
+  font-size: 15px;
+}
+.reference-topbar .header-navigation .navigation-directory-group button {
+  display: flex;
+  width: 100%;
+  padding: 6px 8px;
+  min-height: 34px;
+  text-align: start;
+  white-space: normal;
+  border-color: transparent;
 }
 .reference-topbar .secondary-navigation button:disabled {
   opacity: 0.65;
@@ -80,6 +119,11 @@
   .reference-topbar .primary-navigation-trigger,
   .reference-topbar .secondary-navigation button {
     min-height: 44px;
+  }
+  .secondary-navigation.navigation-directory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 9px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

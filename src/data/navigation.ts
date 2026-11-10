@@ -14,7 +14,7 @@ export type ProjectDestination =
   | "protocols"
   | "office";
 type Destination = { page: PageDestination } | { module: ProjectDestination };
-type NavigationItem = {
+export type NavigationItem = {
   id: string;
   label: string;
   icon: string;

@@ -15,8 +15,9 @@
   --danger-bg: #fbe9e7;
   --info: #1f5c8c;
   --info-bg: #e7f0f7;
-  --radius: 8px;
-  font-family: Arial, "Segoe UI", sans-serif;
+  --radius: 14px;
+  --font-interface: "Heebo", "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-interface);
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;

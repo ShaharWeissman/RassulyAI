@@ -1,0 +1,114 @@
+.app-shell .content-wrap {
+  padding: 16px 20px;
+}
+.is-project .content-wrap {
+  padding: 0;
+}
+.app-shell .page-heading {
+  margin-bottom: 15px;
+  gap: 10px;
+}
+.app-shell .page-heading h1 {
+  font-size: clamp(26px, 2.6vw, 36px);
+  line-height: 1.2;
+}
+.app-shell .page-heading p,
+.app-shell .project-card p {
+  font-size: 15px;
+  line-height: 1.45;
+}
+.app-shell .metrics {
+  padding-block: 11px;
+  margin-bottom: 14px;
+}
+.app-shell .project-grid {
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.app-shell .project-card {
+  padding: 12px 14px;
+}
+.app-shell .project-card .card-top,
+.app-shell .project-card p {
+  margin-bottom: 7px;
+}
+.app-shell .project-card h3 {
+  font-size: 20px;
+  line-height: 1.35;
+}
+.app-shell .panel,
+.app-shell .project-card,
+.app-shell .metrics,
+.app-shell .shortcut,
+.project-workspace .workspace-summary > div,
+.organization-task-card {
+  border-radius: var(--radius);
+}
+.app-shell .panel {
+  margin-bottom: 11px;
+}
+.app-shell .panel.padded {
+  padding: 14px;
+}
+.app-shell .panel-heading {
+  padding: 11px 14px;
+  gap: 10px;
+}
+.app-shell table {
+  font-size: 15px;
+}
+.app-shell th {
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.app-shell td {
+  padding: 9px 12px;
+}
+.app-shell .field > span {
+  font-size: 14px;
+}
+.app-shell .field :is(input, select, textarea),
+.login-form .field :is(input, select, textarea) {
+  border-radius: 10px;
+  font-size: 15px;
+}
+.app-shell .badge {
+  font-size: 12px;
+}
+.company-brand-copy strong {
+  font-family: var(--font-interface);
+}
+.project-workspace .module-tabs button {
+  font-size: 14px;
+}
+.project-workspace .module-content {
+  padding: 14px 20px;
+}
+dialog {
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 22px 64px #14282c33;
+}
+.modal-head {
+  gap: 12px;
+  padding-bottom: 10px;
+}
+@media (max-width: 720px) {
+  .app-shell .content-wrap,
+  .project-workspace .module-content {
+    padding: 12px;
+  }
+  .is-project .content-wrap {
+    padding: 0;
+  }
+  .app-shell .project-card {
+    padding: 11px;
+  }
+  .app-shell .project-card h3 {
+    font-size: 18px;
+  }
+  .app-shell .field input,
+  .login-form .field input {
+    font-size: 16px;
+  }
+}

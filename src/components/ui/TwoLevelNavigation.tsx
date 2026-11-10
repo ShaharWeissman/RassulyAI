@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
   navigationFor,
+  type NavigationItem,
   type PageDestination,
   type ProjectDestination,
 } from "../../data/navigation";
@@ -24,11 +25,13 @@ export default function TwoLevelNavigation({
   const [expandedId, setExpandedId] = useState<string>();
   const nav = useRef<HTMLElement>(null);
   const secondary = useRef<HTMLDivElement>(null);
+  const allTrigger = useRef<HTMLButtonElement>(null);
   const buttons = useRef(new Map<string, HTMLButtonElement>());
   const hoverOpened = useRef<string | undefined>(undefined);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const groups = navigationFor(admin);
   const expanded = groups.find((group) => group.id === expandedId);
+  const allOpen = expandedId === "all";
   const activeId =
     page === "project"
       ? "projects"
@@ -78,6 +81,38 @@ export default function TwoLevelNavigation({
     };
   }, []);
 
+  const available = (item: NavigationItem) =>
+    item.target && ("page" in item.target || page === "project");
+
+  function renderItem(item: NavigationItem) {
+    const target = item.target;
+    const unavailable = !available(item);
+    const current =
+      target &&
+      ("page" in target
+        ? target.page === page
+        : page === "project" && target.module === module);
+    return (
+      <button
+        key={item.id}
+        type="button"
+        disabled={unavailable}
+        className={current ? "active" : undefined}
+        aria-current={current ? "page" : undefined}
+        onClick={() => {
+          if (!target || unavailable) return;
+          close();
+          if ("page" in target) onNavigate(target.page);
+          else onProjectNavigate(target.module);
+        }}
+      >
+        <Icon name={item.icon} size={16} />
+        <span>{item.label}</span>
+        {unavailable && <small>{target ? "בפרויקט פתוח" : "טרם זמין"}</small>}
+      </button>
+    );
+  }
+
   return (
     <nav
       ref={nav}
@@ -85,15 +120,18 @@ export default function TwoLevelNavigation({
       aria-label="ניווט ראשי"
       onPointerEnter={cancelClose}
       onPointerLeave={(event) => {
-        if (event.pointerType === "mouse") scheduleClose();
+        if (event.pointerType === "mouse" && !allOpen) scheduleClose();
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
       }}
       onKeyDown={(event) => {
-        if (event.key !== "Escape" || !expanded) return;
+        if (event.key !== "Escape" || (!expanded && !allOpen)) return;
         event.preventDefault();
-        buttons.current.get(expanded.id)?.focus();
+        (allOpen
+          ? allTrigger.current
+          : buttons.current.get(expanded!.id)
+        )?.focus();
         close();
       }}
     >
@@ -113,7 +151,11 @@ export default function TwoLevelNavigation({
               expandedId === group.id ? `${id}-secondary` : undefined
             }
             onPointerEnter={(event) => {
-              if (event.pointerType === "mouse" && expandedId !== group.id) {
+              if (
+                event.pointerType === "mouse" &&
+                !allOpen &&
+                expandedId !== group.id
+              ) {
                 hoverOpened.current = group.id;
                 open(group.id);
               }
@@ -167,6 +209,47 @@ export default function TwoLevelNavigation({
           </button>
         ))}
       </div>
+      <button
+        ref={allTrigger}
+        id={`${id}-all`}
+        type="button"
+        className="primary-navigation-trigger all-navigation-trigger"
+        aria-expanded={allOpen}
+        aria-controls={allOpen ? `${id}-secondary` : undefined}
+        onClick={() => (allOpen ? close() : open("all"))}
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowDown") return;
+          event.preventDefault();
+          open("all");
+          requestAnimationFrame(() =>
+            secondary.current?.querySelector("button")?.focus(),
+          );
+        }}
+      >
+        <Icon name="grid" size={16} /> כל המסכים{" "}
+        <Icon name="chevron-down" size={12} />
+      </button>
+      {allOpen && (
+        <div
+          id={`${id}-secondary`}
+          ref={secondary}
+          className="secondary-navigation navigation-directory"
+          role="group"
+          aria-labelledby={`${id}-all`}
+        >
+          {groups.map((group) => {
+            const items = group.items.filter(available);
+            return items.length ? (
+              <section className="navigation-directory-group" key={group.id}>
+                <h2>
+                  <Icon name={group.icon} size={17} /> {group.label}
+                </h2>
+                {items.map(renderItem)}
+              </section>
+            ) : null;
+          })}
+        </div>
+      )}
       {expanded && (
         <div
           id={`${id}-secondary`}
@@ -177,38 +260,7 @@ export default function TwoLevelNavigation({
         >
           {expanded.items
             .filter((item) => !item.projectOnly || page === "project")
-            .map((item) => {
-              const target = item.target;
-              const projectTarget = target && "module" in target;
-              const unavailable =
-                !target || (projectTarget && page !== "project");
-              const current =
-                target &&
-                ("page" in target
-                  ? target.page === page
-                  : page === "project" && target.module === module);
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  disabled={unavailable}
-                  className={current ? "active" : undefined}
-                  aria-current={current ? "page" : undefined}
-                  onClick={() => {
-                    if (!target || unavailable) return;
-                    close();
-                    if ("page" in target) onNavigate(target.page);
-                    else onProjectNavigate(target.module);
-                  }}
-                >
-                  <Icon name={item.icon} size={16} />
-                  <span>{item.label}</span>
-                  {unavailable && (
-                    <small>{projectTarget ? "בפרויקט פתוח" : "טרם זמין"}</small>
-                  )}
-                </button>
-              );
-            })}
+            .map(renderItem)}
         </div>
       )}
     </nav>

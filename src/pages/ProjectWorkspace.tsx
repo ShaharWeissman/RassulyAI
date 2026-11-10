@@ -14,6 +14,7 @@ import Tasks from "../components/tasks/Tasks";
 import Protocols from "../components/protocols/Protocols";
 import OfficeStatusCard from "../components/office-status/OfficeStatusCard";
 import { demoProjectCosts } from "../data/costDefaults";
+import type { ProjectCostImport } from "../utils/importProjectCosts";
 export default function ProjectWorkspace({
   data,
   projectId,
@@ -26,6 +27,7 @@ export default function ProjectWorkspace({
   onTaskSave,
   onProtocolSave,
   onCostsSave,
+  onCostsImport,
   workerName,
   isAdmin,
 }: {
@@ -40,6 +42,7 @@ export default function ProjectWorkspace({
   onTaskSave: (t: RequirementTask) => void;
   onProtocolSave: (p: Protocol) => void;
   onCostsSave: (costs: ProjectCost[]) => void;
+  onCostsImport: (projectId: string, data: ProjectCostImport) => void;
   workerName: string;
   isAdmin: boolean;
 }) {
@@ -161,6 +164,7 @@ export default function ProjectWorkspace({
       </dl>
       <div
         className="module-content"
+        key={module}
         id="project-module-content"
         tabIndex={-1}
         role="tabpanel"
@@ -189,6 +193,7 @@ export default function ProjectWorkspace({
                 : demoProjectCosts(p.id, office.budget)
             }
             onSave={onCostsSave}
+            onImport={(result) => onCostsImport(p.id, result)}
             onVarianceSave={(items) =>
               onProjectSave({ ...p, variance_items: items })
             }

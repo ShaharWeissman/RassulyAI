@@ -5,6 +5,8 @@ import CostPie from "./CostPie";
 import CostVarianceTable from "./CostVarianceTable";
 import CostVarianceItems from "./CostVarianceItems";
 import FileSkillAction from "../ui/FileSkillAction";
+import CostWorkbookImport from "./CostWorkbookImport";
+import type { ProjectCostImport } from "../../utils/importProjectCosts";
 import { costsWorkbook, downloadExcel } from "../../utils/excel";
 const currency = (value: number) =>
   new Intl.NumberFormat("he-IL", {
@@ -25,12 +27,14 @@ export default function Costs({
   sourceBudget,
   onSave,
   onVarianceSave,
+  onImport,
 }: {
   project: Project;
   costs: ProjectCost[];
   sourceBudget: number | null;
   onSave: (costs: ProjectCost[]) => void;
   onVarianceSave: (items: CostVarianceItem[]) => void;
+  onImport: (data: ProjectCostImport) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(costs);
@@ -71,6 +75,13 @@ export default function Costs({
           <p className="muted">מעקב עלויות וחלוקה לפרקים</p>
         </div>
         <div className="inline-actions">
+          <CostWorkbookImport
+            projectId={project.id}
+            onSave={(result) => {
+              onImport(result);
+              setView(result.costs.length ? "chapters" : "variance");
+            }}
+          />
           <FileSkillAction context="עלויות פרויקט" />
           <button
             onClick={() => {
