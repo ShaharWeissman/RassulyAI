@@ -64,8 +64,8 @@
   top: 100%;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px clamp(12px, 2vw, 24px);
+  gap: 10px;
+  padding: 12px clamp(14px, 3vw, 36px);
   overflow-x: auto;
   scrollbar-width: thin;
   background: #223632;
@@ -77,16 +77,18 @@
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: 6px;
-  font-size: 14px;
+  gap: 8px;
+  min-height: 48px;
+  padding-inline: 14px;
+  font-size: 16px;
 }
 .secondary-navigation.navigation-directory {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
-  gap: 12px;
-  padding: 14px clamp(14px, 4vw, 60px);
-  max-height: min(65dvh, 520px);
+  gap: 18px;
+  padding: 20px clamp(16px, 4vw, 60px);
+  max-height: min(72dvh, 640px);
   overflow: auto;
   border-radius: 0 0 18px 18px;
 }
@@ -99,15 +101,14 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  margin: 0 0 5px;
-  font-size: 17px;
+  margin: 0 0 8px;
+  font-size: 19px;
   color: #f5f8f7;
 }
 .reference-topbar .header-navigation .navigation-directory-group button {
   display: flex;
   width: 100%;
-  padding: 6px 8px;
-  min-height: 34px;
+  padding: 8px 10px;
   text-align: start;
   white-space: normal;
   border-color: transparent;
@@ -144,8 +145,8 @@
   }
   .secondary-navigation.navigation-directory {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    padding: 9px;
+    gap: 12px;
+    padding: 14px;
   }
 }
 @media (max-width: 1100px) {

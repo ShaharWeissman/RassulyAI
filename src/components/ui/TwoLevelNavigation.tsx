@@ -45,9 +45,14 @@ export default function TwoLevelNavigation({
   function cancelClose() {
     clearTimeout(timer.current);
   }
-  function open(groupId: string) {
+  function open(groupId: string, viaHover = false) {
     cancelClose();
+    hoverOpened.current = viaHover ? groupId : undefined;
     setExpandedId(groupId);
+  }
+  function toggle(groupId: string) {
+    if (expandedId === groupId && hoverOpened.current !== groupId) close();
+    else open(groupId);
   }
   function close() {
     cancelClose();
@@ -120,7 +125,8 @@ export default function TwoLevelNavigation({
       aria-label="ניווט ראשי"
       onPointerEnter={cancelClose}
       onPointerLeave={(event) => {
-        if (event.pointerType === "mouse" && !allOpen) scheduleClose();
+        if (event.pointerType === "mouse" && hoverOpened.current)
+          scheduleClose();
       }}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
@@ -153,24 +159,13 @@ export default function TwoLevelNavigation({
             onPointerEnter={(event) => {
               if (
                 event.pointerType === "mouse" &&
-                !allOpen &&
+                (!expandedId || hoverOpened.current) &&
                 expandedId !== group.id
               ) {
-                hoverOpened.current = group.id;
-                open(group.id);
+                open(group.id, true);
               }
             }}
-            onClick={(event) => {
-              if (
-                expandedId === group.id &&
-                (event.detail === 0 || hoverOpened.current !== group.id)
-              ) {
-                close();
-              } else {
-                hoverOpened.current = undefined;
-                open(group.id);
-              }
-            }}
+            onClick={() => toggle(group.id)}
             onKeyDown={(event) => {
               const firstItem =
                 secondary.current?.querySelector<HTMLButtonElement>(
@@ -215,7 +210,7 @@ export default function TwoLevelNavigation({
         className="primary-navigation-trigger all-navigation-trigger"
         aria-expanded={allOpen}
         aria-controls={allOpen ? `${id}-secondary` : undefined}
-        onClick={() => (allOpen ? close() : open("all"))}
+        onClick={() => toggle("all")}
         onKeyDown={(event) => {
           if (event.key !== "ArrowDown") return;
           event.preventDefault();
