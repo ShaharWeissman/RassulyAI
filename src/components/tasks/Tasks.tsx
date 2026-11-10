@@ -32,6 +32,16 @@ export default function Tasks({
 }) {
   const [adding, setAdding] = useState(false);
   const [managerDraft, setManagerDraft] = useState(managerTasks);
+  const taskSections = [
+    {
+      title: "משימות מנהל",
+      tasks: tasks.filter((task) => task.origin === "manager"),
+    },
+    {
+      title: isAdmin ? "משימות אישיות בפרויקט" : "המשימות שלי",
+      tasks: tasks.filter((task) => task.origin !== "manager"),
+    },
+  ];
   return (
     <>
       <section className="panel padded manager-tasks-panel">
@@ -76,59 +86,64 @@ export default function Tasks({
             </button>
           </div>
         </div>
-        <div className="organization-task-columns project-task-board">
-          {statuses.map((status) => {
-            const matching = tasks.filter(
-              (task) => taskGroup(task.status) === status,
-            );
-            return (
-              <section key={status} className="organization-task-column">
-                <h3>
-                  {statusLabel(status)} <small>{matching.length}</small>
-                </h3>
-                {!matching.length && <Empty text="אין משימות" />}
-                {matching.map((task) => (
-                  <article key={task.id} className="organization-task-card">
-                    <strong>{task.title}</strong>
-                    <span
-                      className={`project-task-origin ${task.origin === "manager" ? "manager" : "personal"}`}
-                    >
-                      {task.origin === "manager"
-                        ? "משימת מנהל"
-                        : task.origin === "personal"
-                          ? "משימה אישית"
-                          : "משימת פרויקט"}
-                    </span>
-                    <p className="muted">אחראי: {task.assignee}</p>
-                    {task.due_date && (
-                      <p className="muted">
-                        תאריך יעד: <bdi>{task.due_date}</bdi>
-                      </p>
-                    )}
-                    <Badge>{task.priority}</Badge>
-                    {task.status === "באיחור" && <Badge>באיחור</Badge>}
-                    {task.note && (
-                      <p className="preserve-whitespace">{task.note}</p>
-                    )}
-                    <select
-                      className="table-select"
-                      aria-label={`סטטוס ${task.title}`}
-                      value={taskGroup(task.status)}
-                      onChange={(e) =>
-                        onSave({
-                          ...task,
-                          status: e.target.value as TaskStatus,
-                        })
-                      }
-                    >
-                      {statusOptions}
-                    </select>
-                  </article>
-                ))}
-              </section>
-            );
-          })}
-        </div>
+        {taskSections.map(({ title, tasks: sectionTasks }) => (
+          <section className="project-task-section" key={title}>
+            <h3>{title}</h3>
+            <div className="organization-task-columns project-task-board">
+              {statuses.map((status) => {
+                const matching = sectionTasks.filter(
+                  (task) => taskGroup(task.status) === status,
+                );
+                return (
+                  <section key={status} className="organization-task-column">
+                    <h4>
+                      {statusLabel(status)} <small>{matching.length}</small>
+                    </h4>
+                    {!matching.length && <Empty text="אין משימות" />}
+                    {matching.map((task) => (
+                      <article key={task.id} className="organization-task-card">
+                        <strong>{task.title}</strong>
+                        <span
+                          className={`project-task-origin ${task.origin === "manager" ? "manager" : "personal"}`}
+                        >
+                          {task.origin === "manager"
+                            ? "משימת מנהל"
+                            : task.origin === "personal"
+                              ? "משימה אישית"
+                              : "משימת פרויקט"}
+                        </span>
+                        <p className="muted">אחראי: {task.assignee}</p>
+                        {task.due_date && (
+                          <p className="muted">
+                            תאריך יעד: <bdi>{task.due_date}</bdi>
+                          </p>
+                        )}
+                        <Badge>{task.priority}</Badge>
+                        {task.status === "באיחור" && <Badge>באיחור</Badge>}
+                        {task.note && (
+                          <p className="preserve-whitespace">{task.note}</p>
+                        )}
+                        <select
+                          className="table-select"
+                          aria-label={`סטטוס ${task.title}`}
+                          value={taskGroup(task.status)}
+                          onChange={(e) =>
+                            onSave({
+                              ...task,
+                              status: e.target.value as TaskStatus,
+                            })
+                          }
+                        >
+                          {statusOptions}
+                        </select>
+                      </article>
+                    ))}
+                  </section>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </section>
       {adding && (
         <Modal

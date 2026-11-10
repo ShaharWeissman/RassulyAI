@@ -17,13 +17,13 @@ import FileSkillAction from "../components/ui/FileSkillAction";
 const steps = [
   "טרם נפתחה תחזית",
   "פתוח לסימון עובדים",
-  "ממתינה לאישור וסינון",
+  "ממתין לאישור מנהל",
   "שוחררה לעובדים",
 ];
 const stepNotes = [
   "התחזיות סגורות",
   "עובדים יכולים לסמן תחזית",
-  "המנהל מכריע בתחזיות",
+  "התחזיות ממתינות לבדיקה ולאישור מנהל",
   "התוצאות זמינות לפי הרשאה",
 ];
 const stepIcons = ["calendar", "edit", "status", "check"];
@@ -348,9 +348,11 @@ export default function OfficeBilling() {
                   <button
                     className="primary"
                     disabled={busy}
-                    onClick={() => setTransition(step + 1)}
+                    onClick={() =>
+                      void act("step", null, { step: step + 1, previous: step })
+                    }
                   >
-                    {["פתיחת תחזית", "סגירה לסינון", "שחרור לעובדים"][step - 1]}
+                    הבא
                   </button>
                 )}
                 {step > 1 && step < 4 && (

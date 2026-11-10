@@ -10,10 +10,10 @@
   border-radius: 8px;
   padding: 12px;
 }
-.organization-task-column h3 {
+.organization-task-column :is(h3, h4) {
   margin-bottom: 10px;
 }
-.organization-task-column h3 small {
+.organization-task-column :is(h3, h4) small {
   margin-inline-start: 5px;
   color: var(--muted);
 }
@@ -33,6 +33,9 @@
 }
 .project-task-board {
   padding: 0 14px 14px;
+}
+.project-task-section > h3 {
+  margin: 12px 14px 0;
 }
 .project-task-board .organization-task-column {
   min-width: 0;
