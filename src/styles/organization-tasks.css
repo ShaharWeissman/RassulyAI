@@ -31,6 +31,15 @@
 .organization-task-card p {
   margin: 0;
 }
+.project-task-board {
+  padding: 0 14px 14px;
+}
+.project-task-board .organization-task-column {
+  min-width: 0;
+}
+.project-task-board .table-select {
+  width: 100%;
+}
 @media (max-width: 720px) {
   .organization-task-columns {
     grid-template-columns: 1fr;

@@ -1,11 +1,16 @@
 import { useState } from "react";
 import type { RequirementTask, TaskStatus } from "../../types";
-import { Badge, Empty, Field, Modal, Options, Table } from "../ui";
+import { Badge, Empty, Field, Modal, Options } from "../ui";
 import FileSkillAction from "../ui/FileSkillAction";
-const statuses: TaskStatus[] = ["פתוח", "בטיפול", "הושלם"];
+import "../../styles/organization-tasks.css";
+const statuses = ["פתוח", "בטיפול", "הושלם"] as const;
+const statusLabel = (status: TaskStatus) =>
+  status === "הושלם" ? "בוצע" : status;
+const taskGroup = (status: TaskStatus) =>
+  status === "באיחור" ? "בטיפול" : status;
 const statusOptions = statuses.map((status) => (
   <option key={status} value={status}>
-    {status === "הושלם" ? "בוצע" : status}
+    {statusLabel(status)}
   </option>
 ));
 export default function Tasks({
@@ -71,57 +76,59 @@ export default function Tasks({
             </button>
           </div>
         </div>
-        {!tasks.length ? (
-          <Empty text="אין משימות בפרויקט הזה. אפשר להוסיף משימה באמצעות הכפתור למעלה." />
-        ) : (
-          <Table
-            caption="משימות הפרויקט"
-            headers={[
-              "משימה",
-              "מקור",
-              "אחראי",
-              "עדיפות",
-              "תאריך יעד",
-              "סטטוס",
-              "הערה",
-            ]}
-          >
-            {tasks.map((t) => (
-              <tr key={t.id}>
-                <td className="strong">{t.title}</td>
-                <td>
-                  <span
-                    className={`project-task-origin ${t.origin === "manager" ? "manager" : "personal"}`}
-                  >
-                    {t.origin === "manager"
-                      ? "משימת מנהל"
-                      : t.origin === "personal"
-                        ? "משימה אישית"
-                        : "משימת פרויקט"}
-                  </span>
-                </td>
-                <td>{t.assignee}</td>
-                <td>
-                  <Badge>{t.priority}</Badge>
-                </td>
-                <td className="numeric">{t.due_date}</td>
-                <td>
-                  <select
-                    className="table-select"
-                    aria-label={`סטטוס ${t.title}`}
-                    value={t.status === "באיחור" ? "בטיפול" : t.status}
-                    onChange={(e) =>
-                      onSave({ ...t, status: e.target.value as TaskStatus })
-                    }
-                  >
-                    {statusOptions}
-                  </select>
-                </td>
-                <td>{t.note || "—"}</td>
-              </tr>
-            ))}
-          </Table>
-        )}
+        <div className="organization-task-columns project-task-board">
+          {statuses.map((status) => {
+            const matching = tasks.filter(
+              (task) => taskGroup(task.status) === status,
+            );
+            return (
+              <section key={status} className="organization-task-column">
+                <h3>
+                  {statusLabel(status)} <small>{matching.length}</small>
+                </h3>
+                {!matching.length && <Empty text="אין משימות" />}
+                {matching.map((task) => (
+                  <article key={task.id} className="organization-task-card">
+                    <strong>{task.title}</strong>
+                    <span
+                      className={`project-task-origin ${task.origin === "manager" ? "manager" : "personal"}`}
+                    >
+                      {task.origin === "manager"
+                        ? "משימת מנהל"
+                        : task.origin === "personal"
+                          ? "משימה אישית"
+                          : "משימת פרויקט"}
+                    </span>
+                    <p className="muted">אחראי: {task.assignee}</p>
+                    {task.due_date && (
+                      <p className="muted">
+                        תאריך יעד: <bdi>{task.due_date}</bdi>
+                      </p>
+                    )}
+                    <Badge>{task.priority}</Badge>
+                    {task.status === "באיחור" && <Badge>באיחור</Badge>}
+                    {task.note && (
+                      <p className="preserve-whitespace">{task.note}</p>
+                    )}
+                    <select
+                      className="table-select"
+                      aria-label={`סטטוס ${task.title}`}
+                      value={taskGroup(task.status)}
+                      onChange={(e) =>
+                        onSave({
+                          ...task,
+                          status: e.target.value as TaskStatus,
+                        })
+                      }
+                    >
+                      {statusOptions}
+                    </select>
+                  </article>
+                ))}
+              </section>
+            );
+          })}
+        </div>
       </section>
       {adding && (
         <Modal
