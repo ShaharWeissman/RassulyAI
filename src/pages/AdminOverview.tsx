@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Badge, Field, Table } from "../components/ui";
 import { demoWorkers } from "../data/auth";
-import { fetchWorkspace } from "../data/cloudWorkspace";
+import { approveLeaveRequest, fetchWorkspace } from "../data/cloudWorkspace";
 import type { AppData } from "../types";
 
 type Section = "dashboard" | "car" | "personal" | "clients" | "office";
 const titles: Record<Section, string> = {
   dashboard: "כל הפרויקטים",
   car: "דיווחי רכב",
-  personal: "דיווחי מחלה",
+  personal: "אישור חופשות ומחלה",
   clients: "לקוחות ומזמיני עבודה",
   office: "סטטוס פרויקטים משרדי",
 };
@@ -28,12 +28,15 @@ export default function AdminOverview({
   const [period, setPeriod] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [leaveKind, setLeaveKind] = useState("");
+  const [approving, setApproving] = useState(false);
+  const [approvalNotice, setApprovalNotice] = useState("");
   useEffect(() => {
     let active = true;
     Promise.all(
       demoWorkers
         .filter((w) => w.id !== "admin")
-        .map((w) => fetchWorkspace(w.id, false)),
+        .map((w) => fetchWorkspace(w.id)),
     )
       .then((result) => {
         if (active) setWorkspaces(result.map((w) => w.data));
@@ -102,11 +105,9 @@ export default function AdminOverview({
         matches(worker.name, vehicle, entry.note),
     )
     .sort((a, b) => b.entry.month.localeCompare(a.entry.month));
-  const sickness = scoped
+  const requests = scoped
     .flatMap((w) =>
-      w.leave_requests
-        .filter((entry) => entry.kind === "מחלה")
-        .map((entry) => ({ entry, worker: w.workers[0] })),
+      w.leave_requests.map((entry) => ({ entry, worker: w.workers[0] })),
     )
     .filter(
       ({ entry, worker }) =>
@@ -114,14 +115,42 @@ export default function AdminOverview({
           (entry.from_date.slice(0, 7) <= period &&
             entry.to_date.slice(0, 7) >= period)) &&
         (!status || entry.status === status) &&
-        matches(worker.name, entry.status),
+        (!leaveKind || entry.kind === leaveKind) &&
+        matches(worker.name, entry.kind, entry.status),
     )
     .sort((a, b) => b.entry.from_date.localeCompare(a.entry.from_date));
   const count = projectSection
     ? projects.length
     : section === "car"
       ? mileage.length
-      : sickness.length;
+      : requests.length;
+  async function approve(workerId: string, requestId: string) {
+    if (approving) return;
+    setApproving(true);
+    setError("");
+    setApprovalNotice("");
+    try {
+      await approveLeaveRequest(workerId, requestId);
+      setWorkspaces((items) =>
+        items?.map((workspace) =>
+          workspace.workers[0]?.id === workerId
+            ? {
+                ...workspace,
+                leave_requests: workspace.leave_requests.map((entry) =>
+                  entry.id === requestId ? { ...entry, status: "אושר" } : entry,
+                ),
+              }
+            : workspace,
+        ),
+      );
+      setApprovalNotice("הבקשה אושרה.");
+      setReload((value) => value + 1);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "האישור נכשל.");
+    } finally {
+      setApproving(false);
+    }
+  }
   return (
     <>
       <div className="page-heading">
@@ -145,6 +174,11 @@ export default function AdminOverview({
         </p>
       )}
       {!workspaces && !error && <p role="status">טוען את נתוני המנהלים…</p>}
+      {approvalNotice && (
+        <p className="notice" role="status">
+          {approvalNotice}
+        </p>
+      )}
       {workspaces && (
         <section className="panel">
           <div className="billing-filters">
@@ -208,6 +242,18 @@ export default function AdminOverview({
                   ).map((value) => (
                     <option key={value}>{value}</option>
                   ))}
+                </select>
+              </Field>
+            )}
+            {section === "personal" && (
+              <Field label="סוג בקשה">
+                <select
+                  value={leaveKind}
+                  onChange={(event) => setLeaveKind(event.target.value)}
+                >
+                  <option value="">הכול</option>
+                  <option>חופשה</option>
+                  <option>מחלה</option>
                 </select>
               </Field>
             )}
@@ -340,15 +386,38 @@ export default function AdminOverview({
           {section === "personal" && (
             <Table
               caption={title}
-              headers={["מנהל פרויקט", "מתאריך", "עד תאריך", "סטטוס"]}
+              headers={[
+                "מנהל פרויקט",
+                "סוג",
+                "מתאריך",
+                "עד תאריך",
+                "סטטוס",
+                "הערה",
+                "פעולה",
+              ]}
             >
-              {sickness.map(({ entry, worker }) => (
+              {requests.map(({ entry, worker }) => (
                 <tr key={`${worker.id}/${entry.id}`}>
                   <td>{worker.name}</td>
+                  <td>{entry.kind}</td>
                   <td>{entry.from_date}</td>
                   <td>{entry.to_date}</td>
                   <td>
                     <Badge>{entry.status}</Badge>
+                  </td>
+                  <td>{entry.note || "—"}</td>
+                  <td>
+                    {entry.status === "ממתין לאישור" ? (
+                      <button
+                        className="primary"
+                        disabled={approving}
+                        onClick={() => void approve(worker.id, entry.id)}
+                      >
+                        אישור בקשה
+                      </button>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}

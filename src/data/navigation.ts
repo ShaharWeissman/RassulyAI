@@ -5,7 +5,8 @@ export type PageDestination =
   | "clients"
   | "car"
   | "personal"
-  | "tasks";
+  | "tasks"
+  | "contacts";
 export type ProjectDestination =
   | "data"
   | "costs"
@@ -138,10 +139,13 @@ const groups: NavigationGroup[] = [
     label: "אנשי קשר",
     icon: "user",
     items: [
-      { id: "directory", label: "ספר טלפונים ארגוני", icon: "user" },
-      { id: "staff", label: "עובדי החברה", icon: "user" },
+      {
+        id: "directory",
+        label: "ספר טלפונים ארגוני",
+        icon: "user",
+        target: { page: "contacts" },
+      },
       { id: "external", label: "אנשי קשר חיצוניים", icon: "building" },
-      { id: "contact-search", label: "חיפוש אנשי קשר", icon: "search" },
     ],
   },
   {
@@ -179,7 +183,7 @@ const groups: NavigationGroup[] = [
       },
       {
         id: "sickness-reports",
-        label: "דיווחי מחלה",
+        label: "אישור חופשות ומחלה",
         icon: "clock",
         target: { page: "personal" },
       },

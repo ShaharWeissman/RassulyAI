@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { LeaveRequest } from "../../types";
 import { Badge, Field, Table } from "../ui";
 export default function Personal({
   requests,
   onSave,
   workerId,
+  onRefresh,
 }: {
   requests: LeaveRequest[];
-  onSave: (request: LeaveRequest) => void;
+  onSave: (request: LeaveRequest) => boolean | Promise<boolean>;
   workerId: string;
+  onRefresh?: () => Promise<void>;
 }) {
   const [kind, setKind] = useState<LeaveRequest["kind"]>("חופשה");
   const [from, setFrom] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const requestId = useRef<string | undefined>(undefined);
   return (
     <div className="two-columns">
       <section className="panel padded">
@@ -21,7 +25,10 @@ export default function Personal({
             <button
               className={kind === k ? "active" : ""}
               key={k}
-              onClick={() => setKind(k)}
+              onClick={() => {
+                if (kind !== k) requestId.current = undefined;
+                setKind(k);
+              }}
               aria-pressed={kind === k}
             >
               {k}
@@ -30,21 +37,34 @@ export default function Personal({
         </div>
         <form
           className="form-grid"
-          onSubmit={(e) => {
+          onChange={() => {
+            requestId.current = undefined;
+          }}
+          onSubmit={async (e) => {
             e.preventDefault();
+            if (submitting) return;
             const form = e.currentTarget;
             const f = new FormData(form);
-            onSave({
-              id: crypto.randomUUID(),
-              worker_id: workerId,
-              kind,
-              from_date: from,
-              to_date: String(f.get("to")),
-              note: String(f.get("note")),
-              status: "ממתין לאישור",
-            });
-            form.reset();
-            setFrom("");
+            requestId.current ??= crypto.randomUUID();
+            setSubmitting(true);
+            try {
+              const saved = await onSave({
+                id: requestId.current,
+                worker_id: workerId,
+                kind,
+                from_date: from,
+                to_date: String(f.get("to")),
+                note: String(f.get("note")),
+                status: "ממתין לאישור",
+              });
+              if (saved) {
+                requestId.current = undefined;
+                form.reset();
+                setFrom("");
+              }
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           <Field label="מתאריך">
@@ -60,16 +80,21 @@ export default function Personal({
             <input required type="date" name="to" min={from} />
           </Field>
           <Field label="הערה (לא חובה)" className="full">
-            <textarea name="note" rows={3} />
+            <textarea name="note" rows={3} maxLength={2000} />
           </Field>
           <div className="form-actions full">
-            <button className="primary">שליחת בקשת {kind}</button>
+            <button className="primary" disabled={submitting}>
+              שליחת בקשת {kind}
+            </button>
           </div>
         </form>
       </section>
       <section className="panel">
         <div className="panel-heading">
           <h2>הבקשות שלי</h2>
+          {onRefresh && (
+            <button onClick={() => void onRefresh()}>רענון בקשות</button>
+          )}
         </div>
         <Table
           caption="בקשות חופשה ומחלה"

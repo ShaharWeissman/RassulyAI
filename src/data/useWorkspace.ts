@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppData } from "../types";
 import { cloudEnabled, persistWorkspace } from "./cloudWorkspace";
 import { loadWorkspace, saveWorkspace } from "./workspaceStorage";
@@ -61,12 +61,12 @@ export function useWorkspace() {
     return () => window.removeEventListener("beforeunload", preventClose);
   }, [pending]);
 
-  function initialize(value: AppData, version: number) {
+  const initialize = useCallback((value: AppData, version: number) => {
     revision.current = version;
     setSaved(value);
     setData(value);
     setError("");
-  }
+  }, []);
 
   function downloadBackup() {
     const blob = new Blob([JSON.stringify({ version: 3, data }, null, 2)], {

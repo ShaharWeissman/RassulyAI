@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   OfficeProjectStatus as OfficeStatus,
   Project,
@@ -6,7 +6,13 @@ import type {
 } from "./types";
 import { assignedProjectIds } from "./data/auth";
 import { useWorkspace } from "./data/useWorkspace";
-import { cloudEnabled, fetchWorkspace, signOut } from "./data/cloudWorkspace";
+import {
+  cloudEnabled,
+  fetchWorkspace,
+  restoreSession,
+  signOut,
+  submitLeaveRequest,
+} from "./data/cloudWorkspace";
 import { Icon } from "./components/ui";
 import AppHeader from "./components/ui/AppHeader";
 import Login from "./pages/Login";
@@ -16,9 +22,33 @@ import OfficeProjectStatus from "./pages/OfficeProjectStatus";
 import OfficeBilling from "./pages/OfficeBilling";
 import AdminOverview from "./pages/AdminOverview";
 import OrganizationTasks from "./pages/OrganizationTasks";
+import OfficeContacts from "./pages/OfficeContacts";
 import CarReport from "./components/dashboard/CarReport";
 import Personal from "./components/dashboard/Personal";
 import { navigationPageTitle } from "./data/navigation";
+import "./styles/motion.css";
+
+const navigationKey = "rassuly-navigation";
+const projectModules = ["data", "costs", "tasks", "protocols", "office"];
+type SavedNavigation = {
+  workerId: string;
+  ownerId: string;
+  page: string;
+  projectId: string;
+  module: string;
+  openIds: string[];
+};
+
+function readNavigation(workerId: string): SavedNavigation | null {
+  try {
+    const saved = JSON.parse(
+      sessionStorage.getItem(navigationKey) ?? "null",
+    ) as SavedNavigation | null;
+    return saved?.workerId === workerId ? saved : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function App() {
   const [worker, setWorker] = useState<Worker | null>(null);
@@ -42,6 +72,95 @@ export default function App() {
   const [openIds, setOpenIds] = useState<string[]>([]);
   const [module, setModule] = useState("data");
   const [notice, setNotice] = useState("");
+  const [restoring, setRestoring] = useState(cloudEnabled);
+  const [restoreError, setRestoreError] = useState("");
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
+  useEffect(() => {
+    if (!cloudEnabled) return;
+    let active = true;
+    async function restore() {
+      try {
+        const session = await restoreSession();
+        if (!active || !session) return;
+        const admin = session.worker.id === "admin";
+        const saved = readNavigation(session.worker.id);
+        let workspace = session;
+        if (
+          admin &&
+          saved?.page === "project" &&
+          saved.ownerId &&
+          saved.ownerId !== session.worker.id
+        ) {
+          try {
+            workspace = {
+              ...(await fetchWorkspace(saved.ownerId)),
+              worker: session.worker,
+            };
+          } catch {
+            // A removed assignment must not prevent entering the workspace.
+          }
+        }
+        if (!active) return;
+        const allowed = assignedProjectIds(
+          workspace.data,
+          workspace.data.workers[0]?.id ?? "",
+        );
+        const validProject =
+          saved?.page === "project" &&
+          allowed.includes(saved.projectId) &&
+          workspace.data.projects.some(
+            (project) => project.id === saved.projectId,
+          );
+        initialize(workspace.data, workspace.revision);
+        setWorker(session.worker);
+        if (validProject && saved) {
+          setPage("project");
+          setProjectId(saved.projectId);
+          setOpenIds(
+            Array.from(
+              new Set([
+                ...(Array.isArray(saved.openIds)
+                  ? saved.openIds.filter((id) => allowed.includes(id))
+                  : []),
+                saved.projectId,
+              ]),
+            ),
+          );
+          setModule(
+            projectModules.includes(saved.module) ? saved.module : "data",
+          );
+        } else if (saved && navigationPageTitle(saved.page, admin)) {
+          setPage(saved.page);
+        }
+      } catch {
+        if (active)
+          setRestoreError("לא הצלחנו לשחזר את החיבור. אפשר לנסות שוב.");
+      } finally {
+        if (active) setRestoring(false);
+      }
+    }
+    void restore();
+    return () => {
+      active = false;
+    };
+  }, [initialize, restoreAttempt]);
+
+  useEffect(() => {
+    if (!cloudEnabled || !worker) return;
+    try {
+      const saved: SavedNavigation = {
+        workerId: worker.id,
+        ownerId: currentWorkerId,
+        page,
+        projectId,
+        module,
+        openIds,
+      };
+      sessionStorage.setItem(navigationKey, JSON.stringify(saved));
+    } catch {
+      // Navigation works even when browser storage is unavailable.
+    }
+  }, [worker, currentWorkerId, page, projectId, module, openIds]);
   const assignedIds = assignedProjectIds(data, currentWorkerId);
   const notify = (message = "השינויים נשמרו בהצלחה") =>
     setNotice(cloudEnabled ? "" : message);
@@ -148,6 +267,27 @@ export default function App() {
       (l) => l.worker_id === currentWorkerId,
     ),
   };
+  if (restoring || restoreError)
+    return (
+      <main
+        className="session-restore"
+        role={restoreError ? "alert" : "status"}
+      >
+        <p>{restoreError || "משחזר את סביבת העבודה…"}</p>
+        {restoreError && (
+          <button
+            className="primary"
+            onClick={() => {
+              setRestoring(true);
+              setRestoreError("");
+              setRestoreAttempt((attempt) => attempt + 1);
+            }}
+          >
+            ניסיון נוסף
+          </button>
+        )}
+      </main>
+    );
   if (!worker)
     return (
       <Login
@@ -188,7 +328,7 @@ export default function App() {
                 ?.focus({ preventScroll: true }),
             );
           }}
-          onLogout={() => {
+          onLogout={async () => {
             if (switching) return;
             if (pending) {
               setNotice(
@@ -196,7 +336,20 @@ export default function App() {
               );
               return;
             }
-            void signOut();
+            setSwitching(true);
+            try {
+              await signOut();
+            } catch {
+              setNotice("היציאה נכשלה. נסה שוב.");
+              return;
+            } finally {
+              setSwitching(false);
+            }
+            try {
+              sessionStorage.removeItem(navigationKey);
+            } catch {
+              /* Optional browser storage. */
+            }
             setWorker(null);
             setPage("dashboard");
             setProjectId("");
@@ -238,136 +391,191 @@ export default function App() {
                 </button>
               </div>
             )}
-            {supervisor &&
-              (page === "dashboard" ||
-                page === "car" ||
-                page === "personal" ||
-                page === "office" ||
-                page === "clients") && (
-                <AdminOverview
-                  key={page}
-                  section={page}
-                  onProject={(owner, id) => void openAdminProject(owner, id)}
-                />
-              )}
-            {!supervisor && page === "dashboard" && (
-              <Dashboard
-                data={userData}
-                workerName={
-                  data.workers.find((person) => person.id === currentWorkerId)
-                    ?.name ?? worker.name
-                }
-                onOpen={openProject}
-                onNavigate={navigate}
-              />
-            )}{" "}
-            {page === "project" && (
-              <ProjectWorkspace
-                key={projectId}
-                data={userData}
-                projectId={projectId}
-                workerName={worker.name}
-                isAdmin={supervisor}
-                openIds={openIds}
-                module={module}
-                onModule={selectProjectModule}
-                onOpen={openProject}
-                onProjectSave={saveProject}
-                onOfficeSave={saveOffice}
-                onCostsSave={(costs) => {
-                  if (
-                    !costs.length ||
-                    !assignedIds.includes(costs[0].project_id) ||
-                    costs.some(
-                      (cost) => cost.project_id !== costs[0].project_id,
-                    )
-                  )
-                    return;
-                  setData((d) => ({
-                    ...d,
-                    project_costs: [
-                      ...d.project_costs.filter(
-                        (cost) => cost.project_id !== costs[0].project_id,
-                      ),
-                      ...costs,
-                    ],
-                  }));
-                  notify("עלויות הפרויקט עודכנו");
-                }}
-                onTaskSave={(t) => {
-                  if (!assignedIds.includes(t.project_id)) return;
-                  setData((d) => ({
-                    ...d,
-                    requirements_tasks: d.requirements_tasks.some(
-                      (v) => v.id === t.id,
-                    )
-                      ? d.requirements_tasks.map((v) => (v.id === t.id ? t : v))
-                      : [...d.requirements_tasks, t],
-                  }));
-                  notify();
-                }}
-                onProtocolSave={(p) => {
-                  if (!assignedIds.includes(p.project_id)) return;
-                  setData((d) => ({ ...d, protocols: [...d.protocols, p] }));
-                  notify("הפרוטוקול נשמר");
-                }}
-              />
-            )}{" "}
-            {page === "billing" && <OfficeBilling />}
-            {page === "tasks" && <OrganizationTasks admin={supervisor} />}
-            {!supervisor && page === "office" && (
-              <OfficeProjectStatus
-                data={userData}
-                onSave={saveOffice}
-                onOpen={openProject}
-              />
-            )}{" "}
-            {!supervisor && page === "car" && (
-              <>
-                <div className="page-heading">
-                  <div>
-                    <span className="eyebrow">דיווחים אישיים</span>
-                    <h1>דיווח רכב</h1>
-                    <p className="muted">
-                      ריכוז הנסיעות והדיווחים החודשיים שלך.
-                    </p>
-                  </div>
-                </div>
-                <CarReport
+            <div
+              className="screen-motion"
+              key={`${page}/${page === "project" ? projectId : ""}`}
+            >
+              {supervisor &&
+                (page === "dashboard" ||
+                  page === "car" ||
+                  page === "personal" ||
+                  page === "office" ||
+                  page === "clients") && (
+                  <AdminOverview
+                    key={page}
+                    section={page}
+                    onProject={(owner, id) => void openAdminProject(owner, id)}
+                  />
+                )}
+              {!supervisor && page === "dashboard" && (
+                <Dashboard
                   data={userData}
-                  workerId={currentWorkerId}
-                  onSave={(entry) => {
+                  workerName={
+                    data.workers.find((person) => person.id === currentWorkerId)
+                      ?.name ?? worker.name
+                  }
+                  onOpen={openProject}
+                  onNavigate={navigate}
+                />
+              )}{" "}
+              {page === "project" && (
+                <ProjectWorkspace
+                  key={projectId}
+                  data={userData}
+                  projectId={projectId}
+                  workerName={worker.name}
+                  isAdmin={supervisor}
+                  openIds={openIds}
+                  module={module}
+                  onModule={selectProjectModule}
+                  onOpen={openProject}
+                  onProjectSave={saveProject}
+                  onOfficeSave={saveOffice}
+                  onCostsSave={(costs) => {
+                    if (
+                      !costs.length ||
+                      !assignedIds.includes(costs[0].project_id) ||
+                      costs.some(
+                        (cost) => cost.project_id !== costs[0].project_id,
+                      )
+                    )
+                      return;
                     setData((d) => ({
                       ...d,
-                      mileage_entries: [...d.mileage_entries, entry],
+                      project_costs: [
+                        ...d.project_costs.filter(
+                          (cost) => cost.project_id !== costs[0].project_id,
+                        ),
+                        ...costs,
+                      ],
                     }));
-                    notify("דיווח הרכב נשמר");
+                    notify("עלויות הפרויקט עודכנו");
+                  }}
+                  onTaskSave={(t) => {
+                    if (!assignedIds.includes(t.project_id)) return;
+                    setData((d) => ({
+                      ...d,
+                      requirements_tasks: d.requirements_tasks.some(
+                        (v) => v.id === t.id,
+                      )
+                        ? d.requirements_tasks.map((v) =>
+                            v.id === t.id ? t : v,
+                          )
+                        : [...d.requirements_tasks, t],
+                    }));
+                    notify();
+                  }}
+                  onProtocolSave={(p) => {
+                    if (!assignedIds.includes(p.project_id)) return;
+                    setData((d) => ({ ...d, protocols: [...d.protocols, p] }));
+                    notify("הפרוטוקול נשמר");
                   }}
                 />
-              </>
-            )}{" "}
-            {!supervisor && page === "personal" && (
-              <>
-                <div className="page-heading">
-                  <div>
-                    <span className="eyebrow">סביבת העבודה שלי</span>
-                    <h1>אישי</h1>
-                    <p className="muted">חופשות, מחלה ומעקב אחר הבקשות שלך.</p>
+              )}{" "}
+              {page === "billing" && <OfficeBilling />}
+              {page === "contacts" && <OfficeContacts />}
+              {page === "tasks" && <OrganizationTasks admin={supervisor} />}
+              {!supervisor && page === "office" && (
+                <OfficeProjectStatus
+                  data={userData}
+                  onSave={saveOffice}
+                  onOpen={openProject}
+                />
+              )}{" "}
+              {!supervisor && page === "car" && (
+                <>
+                  <div className="page-heading">
+                    <div>
+                      <span className="eyebrow">דיווחים אישיים</span>
+                      <h1>דיווח רכב</h1>
+                      <p className="muted">
+                        ריכוז הנסיעות והדיווחים החודשיים שלך.
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <Personal
-                  requests={userData.leave_requests}
-                  workerId={currentWorkerId}
-                  onSave={(request) => {
-                    setData((d) => ({
-                      ...d,
-                      leave_requests: [...d.leave_requests, request],
-                    }));
-                    notify("הבקשה נשלחה וממתינה לאישור");
-                  }}
-                />
-              </>
-            )}
+                  <CarReport
+                    data={userData}
+                    workerId={currentWorkerId}
+                    onSave={(entry) => {
+                      setData((d) => ({
+                        ...d,
+                        mileage_entries: [...d.mileage_entries, entry],
+                      }));
+                      notify("דיווח הרכב נשמר");
+                    }}
+                  />
+                </>
+              )}{" "}
+              {!supervisor && page === "personal" && (
+                <>
+                  <div className="page-heading">
+                    <div>
+                      <span className="eyebrow">סביבת העבודה שלי</span>
+                      <h1>אישי</h1>
+                      <p className="muted">
+                        חופשות, מחלה ומעקב אחר הבקשות שלך.
+                      </p>
+                    </div>
+                  </div>
+                  <Personal
+                    requests={userData.leave_requests}
+                    workerId={currentWorkerId}
+                    onRefresh={
+                      cloudEnabled
+                        ? async () => {
+                            if (pending || switching) {
+                              setNotice(
+                                "יש להמתין לסיום השמירה לפני רענון הבקשות.",
+                              );
+                              return;
+                            }
+                            setSwitching(true);
+                            try {
+                              const workspace = await fetchWorkspace();
+                              initialize(workspace.data, workspace.revision);
+                              setNotice("");
+                            } catch {
+                              setNotice("רענון הבקשות נכשל.");
+                            } finally {
+                              setSwitching(false);
+                            }
+                          }
+                        : undefined
+                    }
+                    onSave={async (request) => {
+                      if (cloudEnabled) {
+                        if (pending || switching) {
+                          setNotice("יש להמתין לסיום השמירה לפני שליחת הבקשה.");
+                          return false;
+                        }
+                        setSwitching(true);
+                        try {
+                          const workspace = await submitLeaveRequest(request);
+                          initialize(workspace.data, workspace.revision);
+                          setNotice("הבקשה נשלחה וממתינה לאישור");
+                          return true;
+                        } catch (reason) {
+                          setNotice(
+                            reason instanceof Error
+                              ? reason.message
+                              : "שליחת הבקשה נכשלה.",
+                          );
+                          return false;
+                        } finally {
+                          setSwitching(false);
+                        }
+                      }
+                      setData((d) => ({
+                        ...d,
+                        leave_requests: [...d.leave_requests, request],
+                      }));
+                      notify("הבקשה נשלחה וממתינה לאישור");
+                      return true;
+                    }}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </main>
         <footer className="app-footer">
