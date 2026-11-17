@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ProjectSchedule as Schedule } from "../../types";
-import { Field, Modal, Table } from "../ui";
+import { Field, Icon, Modal, Table } from "../ui";
+import ScheduleTimeline from "./ScheduleTimeline";
 import { importContractorSchedule } from "../../utils/importContractorSchedule";
 import "../../styles/project-schedule.css";
 
@@ -55,54 +56,25 @@ export default function ProjectSchedule({
   return (
     <>
       <section className="panel padded">
-        <div className="project-schedule-heading">
-          <h2>ציר זמן פרויקטלי</h2>
-          <button type="button" onClick={() => open("edit")}>
-            עדכון מועדים
-          </button>
-        </div>
-        <ol className="project-timeline">
-          {milestones.map(([key, label]) => (
-            <li key={key}>
-              <strong>{label}</strong>
-              {schedule[key] ? (
-                <time dateTime={schedule[key]}>
-                  {formatDate.format(new Date(schedule[key]))}
-                </time>
-              ) : (
-                <span className="muted">טרם נקבע</span>
-              )}
-            </li>
-          ))}
-        </ol>
-      </section>
-      <section className="panel padded">
-        <div className="project-schedule-heading">
-          <div>
-            <h2>לוח זמנים של הקבלן</h2>
-            <p className="muted">
-              {schedule.contractor
-                ? `${schedule.contractor.activities.length} פעילויות · ${schedule.contractor.filename}`
-                : "טרם יובא לוח זמנים."}
-            </p>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          <h2>ציר זמן פרויקט</h2>
           <div className="inline-actions">
-            <button
-              type="button"
-              disabled={!schedule.contractor}
-              onClick={() => open("view")}
-            >
-              הצגת לו״ז קבלן
-            </button>
             <button
               type="button"
               className="primary"
               onClick={() => open("import")}
             >
-              ייבוא לו״ז קבלן
+              <Icon name="file" size={17} /> העלאת קובץ מזורז סקריפט/לו״ז
+            </button>
+            <button type="button" onClick={() => open("edit")}>
+              <Icon name="edit" size={17} /> עריכת נתוני פרויקט
             </button>
           </div>
         </div>
+        <ScheduleTimeline
+          schedule={schedule}
+          onShowTable={() => open("view")}
+        />
       </section>
       {modal === "edit" && (
         <Modal title="עדכון מועדי הפרויקט" onClose={() => setModal(undefined)}>
@@ -161,19 +133,25 @@ export default function ProjectSchedule({
           title="ייבוא לו״ז קבלן"
           onClose={() => !loading && setModal(undefined)}
         >
-          <p>בחר קובץ XLSX עם עמודות פעילות, התחלה וסיום.</p>
+          <p>
+            בחר קובץ XLSX או CSV בקידוד UTF-8 עם עמודות פעילות, התחלה וסיום.
+            אפשר לייצא קובץ בפורמט הזה מ־MS Project או מ־Primavera.
+          </p>
           <Field label="קובץ לוח זמנים">
             <input
               type="file"
-              accept=".xlsx"
+              accept=".xlsx,.csv"
               disabled={loading}
               onChange={async (event) => {
                 const file = event.target.files?.[0];
                 setPreview(undefined);
                 setError("");
                 if (!file) return;
-                if (!/\.xlsx$/i.test(file.name) || file.size > 12_000_000) {
-                  setError("בחר קובץ XLSX עד 12 מגה.");
+                if (
+                  !/\.(xlsx|csv)$/i.test(file.name) ||
+                  file.size > 12_000_000
+                ) {
+                  setError("בחר קובץ XLSX או CSV עד 12 מגה.");
                   return;
                 }
                 setLoading(true);
@@ -189,7 +167,7 @@ export default function ProjectSchedule({
                     reason instanceof Error &&
                       /[\u0590-\u05ff]/.test(reason.message)
                       ? reason.message
-                      : "לא ניתן לקרוא את קובץ ה־Excel.",
+                      : "לא ניתן לקרוא את קובץ לוח הזמנים.",
                   );
                 } finally {
                   setLoading(false);
@@ -205,7 +183,10 @@ export default function ProjectSchedule({
           )}
           {preview && (
             <>
-              <p>{preview.schedule.activities.length} פעילויות לייבוא.</p>
+              <p>
+                {preview.schedule.activities.length} פעילויות לייבוא. מוצגות עד
+                8 הפעילויות הראשונות.
+              </p>
               {preview.skipped > 0 && (
                 <p className="muted">
                   {preview.skipped} שורות עם מידע חסר או תאריכים לא תקינים לא

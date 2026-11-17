@@ -46,8 +46,50 @@ function activityDate(value: string | number | undefined, date1904: boolean) {
     : "";
 }
 
+function csvRows(text: string, delimiter: string): Record<string, string>[] {
+  const rows: Record<string, string>[] = [];
+  let row: string[] = [];
+  let field = "";
+  let quoted = false;
+  const finishRow = () => {
+    row.push(field);
+    rows.push(Object.fromEntries(row.entries()));
+    row = [];
+    field = "";
+  };
+  for (let index = 0; index < text.length; index++) {
+    const character = text[index];
+    if (character === '"' && quoted && text[index + 1] === '"') {
+      field += '"';
+      index++;
+    } else if (character === '"' && (quoted || !field)) {
+      quoted = !quoted;
+    } else if (!quoted && character === delimiter) {
+      row.push(field);
+      field = "";
+    } else if (!quoted && (character === "\r" || character === "\n")) {
+      finishRow();
+      if (character === "\r" && text[index + 1] === "\n") index++;
+    } else {
+      field += character;
+    }
+  }
+  if (quoted) throw new Error("נמצאו מרכאות לא סגורות בקובץ CSV.");
+  if (row.length || field) finishRow();
+  return rows;
+}
+
 export function importContractorSchedule(bytes: Uint8Array, filename: string) {
-  const { sheets, date1904 } = readExcelWorkbook(bytes);
+  const workbook = /\.csv$/i.test(filename)
+    ? {
+        date1904: false,
+        sheets: [",", ";", "\t"].map((delimiter) => ({
+          rows: () =>
+            csvRows(new TextDecoder("utf-8").decode(bytes), delimiter),
+        })),
+      }
+    : readExcelWorkbook(bytes);
+  const { sheets, date1904 } = workbook;
   for (const sheet of sheets) {
     const rows = sheet.rows();
     for (const [index, row] of rows.slice(0, 50).entries()) {

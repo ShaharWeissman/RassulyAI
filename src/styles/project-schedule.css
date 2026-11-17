@@ -1,45 +1,121 @@
-.project-schedule-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../components/projects/ProjectSchedule.tsx";
+@source "../components/projects/ScheduleTimeline.tsx";
+
+.schedule-timeline {
+  --schedule-ink: #15565f;
+  --schedule-red: #ae302f;
+  margin-block-start: 24px;
+  padding: clamp(14px, 3vw, 30px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f4f9f9;
 }
-.project-timeline {
+.schedule-timeline-dates > div {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  padding: 0;
-  margin: 18px 0 4px;
-  list-style: none;
+  gap: 3px;
 }
-.project-timeline li {
+.schedule-timeline-dates > :last-child {
+  text-align: end;
+}
+.schedule-timeline-dates span {
+  font-weight: 750;
+  color: var(--schedule-ink);
+  font-variant-numeric: tabular-nums;
+}
+.schedule-track-wrap {
   position: relative;
-  display: grid;
-  gap: 4px;
-  border-block-start: 2px solid var(--primary, #177f8c);
-  padding: 16px 0 0 12px;
+  margin: 24px 4px 18px;
 }
-.project-timeline li::before {
+.schedule-track-wrap::before,
+.schedule-track-wrap::after {
   position: absolute;
   content: "";
-  inset-inline-start: 0;
-  inset-block-start: -6px;
+  inset-block-end: 100%;
   width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--primary, #177f8c);
+  height: 7px;
+  background: var(--schedule-ink);
 }
-@media (max-width: 560px) {
-  .project-timeline {
-    grid-template-columns: 1fr;
-  }
-  .project-timeline li {
-    border-block-start: 0;
-    border-inline-start: 2px solid var(--primary, #177f8c);
-    padding: 0 16px 14px;
-  }
-  .project-timeline li::before {
-    inset-inline-start: -6px;
-    inset-block-start: 7px;
-  }
+.schedule-track-wrap::before {
+  inset-inline-start: -4px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.schedule-track-wrap::after {
+  inset-inline-end: -4px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+.schedule-track {
+  height: 16px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    -45deg,
+    #b8e2e3 0 7px,
+    #def0f0 7px 14px
+  );
+}
+.schedule-elapsed {
+  display: block;
+  height: 100%;
+  background: #177984;
+}
+.schedule-today-marker {
+  position: absolute;
+  inset-block: -5px;
+  width: 3px;
+  translate: 50% 0;
+  border-radius: 2px;
+  background: var(--schedule-red);
+}
+.schedule-today-label {
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: #fbe9e7;
+  color: var(--schedule-red);
+  font-weight: 700;
+}
+.schedule-gantt {
+  margin-block-start: 20px;
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 14px;
+}
+.schedule-gantt summary {
+  width: fit-content;
+  font-weight: 750;
+  cursor: pointer;
+}
+.schedule-gantt ul {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0 4px;
+  max-height: 440px;
+  overflow: auto;
+  scrollbar-gutter: stable both-edges;
+}
+.schedule-gantt li + li {
+  margin-block-start: 10px;
+}
+.schedule-activity small {
+  color: #4b6166;
+}
+.schedule-gantt-row {
+  position: relative;
+  height: 13px;
+  margin-block-start: 4px;
+  background: repeating-linear-gradient(
+    to left,
+    #e4eeee 0 calc(25% - 1px),
+    #bbd1d2 calc(25% - 1px) 25%
+  );
+  overflow: hidden;
+  border-radius: 4px;
+}
+.schedule-gantt-row span {
+  position: absolute;
+  inset-block: 0;
+  min-width: 3px;
+  border-radius: 4px;
+  background: #257b84;
 }
