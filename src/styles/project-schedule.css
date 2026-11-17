@@ -29,6 +29,9 @@
   position: relative;
   margin: 24px 4px 18px;
 }
+.schedule-track-wrap:has(.schedule-today-marker) {
+  margin-block-end: 58px;
+}
 .schedule-track-wrap::before,
 .schedule-track-wrap::after {
   position: absolute;
@@ -63,16 +66,32 @@
 }
 .schedule-today-marker {
   position: absolute;
-  inset-block: -5px;
-  width: 3px;
+  z-index: 1;
+  inset-block: -10px -13px;
+  inset-inline-start: var(--today-position);
+  width: 4px;
   translate: 50% 0;
   border-radius: 2px;
   background: var(--schedule-red);
+  box-shadow: 0 0 0 1px white;
+  pointer-events: none;
 }
 .schedule-today-label {
+  position: absolute;
+  inset-block-start: calc(100% + 15px);
+  inset-inline-start: clamp(4.75rem, var(--today-position), 100% - 4.75rem);
+  width: 9.5rem;
+  translate: 50% 0;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 4px 6px;
   background: #fbe9e7;
+  color: var(--schedule-red);
+  font-weight: 700;
+}
+.schedule-today-status {
   color: var(--schedule-red);
   font-weight: 700;
 }

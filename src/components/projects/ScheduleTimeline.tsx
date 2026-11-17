@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { ProjectSchedule } from "../../types";
 
 const day = 86400000;
@@ -11,8 +12,7 @@ const todayInIsrael = new Intl.DateTimeFormat("sv-SE", {
   timeZone: "Asia/Jerusalem",
 });
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
-const scheduleDate = (value: string) =>
-  dateLabel.format(new Date(value));
+const scheduleDate = (value: string) => dateLabel.format(new Date(value));
 
 export default function ScheduleTimeline({
   schedule,
@@ -37,9 +37,9 @@ export default function ScheduleTimeline({
   const todayStatus = !hasRange
     ? ""
     : now < start
-      ? ` · ${Math.round((start - now) / day)} ימים עד תחילת העבודה`
+      ? `${Math.round((start - now) / day)} ימים עד תחילת העבודה`
       : now > end
-        ? ` · ${Math.round((now - end) / day)} ימים אחרי הסיום החוזי`
+        ? `${Math.round((now - end) / day)} ימים אחרי הסיום החוזי`
         : "";
 
   return (
@@ -62,7 +62,10 @@ export default function ScheduleTimeline({
           </span>
         </div>
       </div>
-      <div className="schedule-track-wrap">
+      <div
+        className="schedule-track-wrap"
+        style={{ "--today-position": `${elapsed}%` } as CSSProperties}
+      >
         <div
           className="schedule-track"
           role={hasRange ? "progressbar" : undefined}
@@ -72,18 +75,23 @@ export default function ScheduleTimeline({
           <span className="schedule-elapsed" style={{ width: `${elapsed}%` }} />
         </div>
         {hasRange && (
-          <span
-            className="schedule-today-marker"
-            style={{ insetInlineStart: `${elapsed}%` }}
-            aria-hidden="true"
-          />
+          <>
+            <span className="schedule-today-marker" aria-hidden="true" />
+            <span className="schedule-today-label">
+              היום · <time dateTime={today}>{scheduleDate(today)}</time>
+            </span>
+          </>
         )}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        <span className="schedule-today-label">
-          היום · <time dateTime={today}>{scheduleDate(today)}</time>
-          {todayStatus}
-        </span>
+        {todayStatus && (
+          <span className="schedule-today-status">{todayStatus}</span>
+        )}
+        {!hasRange && (
+          <span className="muted">
+            יש להזין צו תחילת עבודה וסיום חוזי כדי למקם את היום על הציר.
+          </span>
+        )}
         <span>
           מסירת פרויקט ·{" "}
           {schedule.handoverDate
