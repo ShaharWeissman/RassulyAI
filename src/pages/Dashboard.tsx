@@ -16,19 +16,25 @@ export default function Dashboard({
   const attention = data.office_project_status.filter((s) =>
     ["דורש טיפול", "דורש תשומת לב"].includes(s.condition),
   );
+  const clients = new Map<string, number>();
+  for (const project of data.projects) {
+    const client = project.client.trim() || "מזמין לא צוין";
+    clients.set(client, (clients.get(client) ?? 0) + 1);
+  }
   return (
     <>
       <div className="page-heading">
         <div>
           <span className="eyebrow">סביבת העבודה שלי</span>
           <h1>שלום, {workerName.split(" ")[0]}</h1>
-          <p className="muted">כל הפרויקטים והעדכונים שלך, במבט אחד.</p>
+          <p className="muted">הפרויקטים שלי</p>
         </div>
-        <span className="date-label">
-          {new Intl.DateTimeFormat("he-IL", { dateStyle: "full" }).format(
-            new Date(),
-          )}
-        </span>
+        <button
+          className="primary"
+          onClick={() => onNavigate("company-projects")}
+        >
+          עבור לכלל הפרויקטים בחברה
+        </button>
       </div>
       <div className="metrics">
         <div>
@@ -36,7 +42,7 @@ export default function Dashboard({
             <Icon name="building" />
           </span>
           <span>
-            <small>הפרויקטים שלי</small>
+            <small>סה״כ פרויקטים בטיפולי</small>
             <strong>{data.projects.length.toString().padStart(2, "0")}</strong>
           </span>
         </div>
@@ -59,6 +65,25 @@ export default function Dashboard({
           </span>
         </div>
       </div>
+      <section className="panel padded">
+        <h2>פרויקטים לפי מזמין</h2>
+        {clients.size ? (
+          <dl className="shortcut-grid project-client-counts">
+            {[...clients]
+              .sort(([a], [b]) => a.localeCompare(b, "he"))
+              .map(([name, count]) => (
+                <div className="shortcut" key={name}>
+                  <dt>{name}</dt>
+                  <dd>
+                    <strong>{count}</strong>
+                  </dd>
+                </div>
+              ))}
+          </dl>
+        ) : (
+          <p className="muted">אפשר לבחור פרויקטים מרשימת החברה.</p>
+        )}
+      </section>
       <section className="projects-section">
         <div className="section-heading">
           <div>
@@ -77,7 +102,8 @@ export default function Dashboard({
           {data.projects.map((p) => {
             const office = data.office_project_status.find(
               (s) => s.project_id === p.id,
-            )!;
+            );
+            const condition = office?.condition ?? "לא סווג";
             return (
               <button
                 className="project-card"
@@ -95,6 +121,15 @@ export default function Dashboard({
                 </span>
                 <h3>{p.name}</h3>
                 <p className="muted">{p.client}</p>
+                <p className="muted">
+                  עדכון אחרון:{" "}
+                  {office?.updated_at
+                    ? new Date(office.updated_at).toLocaleDateString("he-IL")
+                    : "טרם עודכן"}
+                </p>
+                {p.transferred_from && (
+                  <Badge>הועבר מ{p.transferred_from}</Badge>
+                )}
                 <div className="stage-row">
                   <span className="muted">שלב פרויקט</span>
                   <strong>{p.current_stage}</strong>
@@ -102,15 +137,15 @@ export default function Dashboard({
                 <div className="card-bottom">
                   <span
                     className={
-                      office.condition === "תקין"
+                      condition === "תקין"
                         ? "condition-ok"
-                        : office.condition === "לא סווג"
+                        : condition === "לא סווג"
                           ? "muted"
                           : "condition-warning"
                     }
                   >
                     <span className="dot" />
-                    {office.condition}
+                    {condition}
                   </span>
                   <span className="open-project">
                     פתיחת פרויקט <Icon name="arrow" size={16} />
@@ -163,10 +198,6 @@ export default function Dashboard({
             <Icon name="arrow" size={18} />
           </button>
         ))}
-      </div>
-      <div className="dashboard-footer">
-        <span className="dot" />
-        רשימת הפרויקטים מקובץ הסטטוס שלך · שינויים נשמרים בדפדפן זה
       </div>
     </>
   );

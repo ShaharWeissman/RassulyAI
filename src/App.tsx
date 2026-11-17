@@ -17,6 +17,13 @@ import { Icon } from "./components/ui";
 import AppHeader from "./components/ui/AppHeader";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import CompanyProjects from "./pages/CompanyProjects";
+import {
+  listLocalProjects,
+  pullCloudProject,
+  pullLocalProject,
+  type CompanyProject,
+} from "./data/companyProjects";
 import ProjectWorkspace from "./pages/ProjectWorkspace";
 import OfficeProjectStatus from "./pages/OfficeProjectStatus";
 import OfficeBilling from "./pages/OfficeBilling";
@@ -164,10 +171,55 @@ export default function App() {
   const notify = (message = "השינויים נשמרו בהצלחה") =>
     setNotice(cloudEnabled ? "" : message);
   const navigate = (target: string) => {
+    if (switching) return;
+    if (
+      target === "dashboard" &&
+      cloudEnabled &&
+      worker &&
+      currentWorkerId !== worker.id
+    ) {
+      if (pending) {
+        setNotice("יש להמתין לסיום השמירה לפני החזרה לפרויקטים שלך.");
+        return;
+      }
+      setSwitching(true);
+      void fetchWorkspace()
+        .then((workspace) => {
+          initialize(workspace.data, workspace.revision);
+          setOpenIds([]);
+          setPage("dashboard");
+          setNotice("");
+          window.scrollTo({ top: 0 });
+        })
+        .catch(() => setNotice("לא ניתן לטעון את הפרויקטים שלך."))
+        .finally(() => setSwitching(false));
+      return;
+    }
     setPage(target);
     setNotice("");
     window.scrollTo({ top: 0 });
   };
+  async function pullProject(project: CompanyProject) {
+    if (!worker || switching || pending) {
+      throw new Error("יש להמתין לסיום השמירה לפני העברת הפרויקט.");
+    }
+    if (!cloudEnabled) {
+      const updated = pullLocalProject(data, project, worker.id);
+      if (updated === data)
+        throw new Error("השיוך השתנה. בחר את הפרויקט מחדש.");
+      setData(updated);
+    } else {
+      setSwitching(true);
+      try {
+        const workspace = await pullCloudProject(project);
+        initialize(workspace.data, workspace.revision);
+        setOpenIds([]);
+      } finally {
+        setSwitching(false);
+      }
+    }
+    setNotice(`הפרויקט ״${project.name}״ הועבר לטיפולך.`);
+  }
   const selectProjectModule = (target: string) => {
     setModule(target);
     setNotice("");
@@ -395,8 +447,7 @@ export default function App() {
               key={`${page}/${page === "project" ? projectId : ""}`}
             >
               {supervisor &&
-                (page === "dashboard" ||
-                  page === "car" ||
+                (page === "car" ||
                   page === "personal" ||
                   page === "office" ||
                   page === "clients") && (
@@ -406,17 +457,31 @@ export default function App() {
                     onProject={(owner, id) => void openAdminProject(owner, id)}
                   />
                 )}
-              {!supervisor && page === "dashboard" && (
+              {page === "dashboard" && (
                 <Dashboard
                   data={userData}
-                  workerName={
-                    data.workers.find((person) => person.id === currentWorkerId)
-                      ?.name ?? worker.name
-                  }
+                  workerName={worker.name}
                   onOpen={openProject}
                   onNavigate={navigate}
                 />
               )}{" "}
+              {page === "company-projects" && (
+                <CompanyProjects
+                  localProjects={
+                    cloudEnabled ? undefined : listLocalProjects(data)
+                  }
+                  workerId={worker.id}
+                  workerName={worker.name}
+                  onHome={() => navigate("dashboard")}
+                  onOpen={(project) => {
+                    if (project.owner_id === currentWorkerId)
+                      openProject(project.id);
+                    else void openAdminProject(project.owner_id, project.id);
+                  }}
+                  onPull={pullProject}
+                  canOpenOtherProjects={supervisor && cloudEnabled}
+                />
+              )}
               {page === "project" && (
                 <ProjectWorkspace
                   key={projectId}

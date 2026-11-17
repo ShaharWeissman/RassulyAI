@@ -1,5 +1,6 @@
 export type PageDestination =
   | "dashboard"
+  | "company-projects"
   | "office"
   | "billing"
   | "clients"
@@ -42,9 +43,15 @@ const groups: NavigationGroup[] = [
     items: [
       {
         id: "project-list",
-        label: "רשימת פרויקטים",
+        label: "הפרויקטים שלי",
         icon: "grid",
         target: { page: "dashboard" },
+      },
+      {
+        id: "company-projects",
+        label: "כלל הפרויקטים בחברה",
+        icon: "building",
+        target: { page: "company-projects" },
       },
       {
         id: "project-data",
@@ -219,13 +226,7 @@ export function navigationFor(admin: boolean) {
     !audience || audience === role;
   return groups.filter(visible).map((group) => ({
     ...group,
-    items: group.items
-      .filter(visible)
-      .map((item) =>
-        admin && item.id === "project-list"
-          ? { ...item, label: "כלל הפרויקטים" }
-          : item,
-      ),
+    items: group.items.filter(visible),
   }));
 }
 

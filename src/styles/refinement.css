@@ -118,3 +118,14 @@ dialog {
     font-size: 16px;
   }
 }
+.app-shell .project-client-counts {
+  margin: 10px 0 0;
+}
+.project-client-counts .shortcut {
+  display: flex;
+  justify-content: space-between;
+  text-align: start;
+}
+.project-client-counts dd {
+  margin: 0;
+}

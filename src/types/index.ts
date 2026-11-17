@@ -28,6 +28,7 @@ export interface Project {
   manager_tasks?: string;
   variance_items?: CostVarianceItem[];
   schedule?: ProjectSchedule;
+  transferred_from?: string;
 }
 export interface ProjectSchedule {
   workOrderDate: string;
