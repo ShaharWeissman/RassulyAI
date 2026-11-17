@@ -1,0 +1,45 @@
+.project-schedule-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.project-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0;
+  margin: 18px 0 4px;
+  list-style: none;
+}
+.project-timeline li {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  border-block-start: 2px solid var(--primary, #177f8c);
+  padding: 16px 0 0 12px;
+}
+.project-timeline li::before {
+  position: absolute;
+  content: "";
+  inset-inline-start: 0;
+  inset-block-start: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary, #177f8c);
+}
+@media (max-width: 560px) {
+  .project-timeline {
+    grid-template-columns: 1fr;
+  }
+  .project-timeline li {
+    border-block-start: 0;
+    border-inline-start: 2px solid var(--primary, #177f8c);
+    padding: 0 16px 14px;
+  }
+  .project-timeline li::before {
+    inset-inline-start: -6px;
+    inset-block-start: 7px;
+  }
+}

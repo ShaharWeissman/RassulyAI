@@ -9,6 +9,8 @@ import type {
 } from "../types";
 import { Badge, Modal } from "../components/ui";
 import ProjectData from "../components/projects/ProjectData";
+import ProjectSchedule from "../components/projects/ProjectSchedule";
+import { projectModules, type ProjectDestination } from "../data/navigation";
 import Costs from "../components/costs/Costs";
 import Tasks from "../components/tasks/Tasks";
 import Protocols from "../components/protocols/Protocols";
@@ -75,13 +77,7 @@ export default function ProjectWorkspace({
         ))}
       </div>
       <div className="module-tabs" role="tablist" aria-label="מודולי פרויקט">
-        {[
-          ["data", "נתוני פרויקט"],
-          ["costs", "עלויות פרויקט"],
-          ["tasks", "משימות"],
-          ["protocols", "פרוטוקולים"],
-          ["office", "סטטוס פרויקט משרדית"],
-        ].map(([id, title]) => (
+        {Object.entries(projectModules).map(([id, title]) => (
           <button
             role="tab"
             aria-selected={module === id}
@@ -168,21 +164,18 @@ export default function ProjectWorkspace({
         id="project-module-content"
         tabIndex={-1}
         role="tabpanel"
-        aria-label={
-          module === "data"
-            ? "נתוני פרויקט"
-            : module === "costs"
-              ? "עלויות פרויקט"
-              : module === "tasks"
-                ? "משימות"
-                : module === "protocols"
-                  ? "פרוטוקולים"
-                  : "סטטוס פרויקט משרדית"
-        }
+        aria-label={projectModules[module as ProjectDestination]}
       >
         {module === "data" && (
           <ProjectData project={p} onSave={onProjectSave} />
         )}{" "}
+        {module === "schedule" && (
+          <ProjectSchedule
+            key={p.id}
+            value={p.schedule}
+            onSave={(schedule) => onProjectSave({ ...p, schedule })}
+          />
+        )}
         {module === "costs" && (
           <Costs
             project={p}

@@ -7,12 +7,16 @@ export type PageDestination =
   | "personal"
   | "tasks"
   | "contacts";
-export type ProjectDestination =
-  | "data"
-  | "costs"
-  | "tasks"
-  | "protocols"
-  | "office";
+export const projectModules = {
+  data: "נתוני פרויקט",
+  costs: "עלויות פרויקט",
+  schedule: "לוחות זמנים",
+  tasks: "משימות",
+  protocols: "פרוטוקולים",
+  office: "סטטוס פרויקט משרדית",
+  quality: "איכות",
+} as const;
+export type ProjectDestination = keyof typeof projectModules;
 type Destination = { page: PageDestination } | { module: ProjectDestination };
 export type NavigationItem = {
   id: string;
@@ -61,6 +65,20 @@ const groups: NavigationGroup[] = [
         label: "סטטוס בפרויקט",
         icon: "status",
         target: { module: "office" },
+        projectOnly: true,
+      },
+      {
+        id: "project-schedule",
+        label: projectModules.schedule,
+        icon: "calendar",
+        target: { module: "schedule" },
+        projectOnly: true,
+      },
+      {
+        id: "project-quality",
+        label: projectModules.quality,
+        icon: "check",
+        target: { module: "quality" },
         projectOnly: true,
       },
       { id: "contractor-billing", label: "חשבונות קבלן", icon: "file" },

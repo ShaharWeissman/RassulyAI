@@ -27,6 +27,16 @@ export interface Project {
   code: string;
   manager_tasks?: string;
   variance_items?: CostVarianceItem[];
+  schedule?: ProjectSchedule;
+}
+export interface ProjectSchedule {
+  workOrderDate: string;
+  contractualEndDate: string;
+  handoverDate: string;
+  contractor?: {
+    filename: string;
+    activities: { name: string; start: string; end: string }[];
+  };
 }
 export interface CostVarianceItem {
   id: string;

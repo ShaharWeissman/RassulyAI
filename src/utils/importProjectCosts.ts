@@ -27,10 +27,7 @@ const number = (value: CellValue | undefined) => {
 const header = (row: Row, names: string[]) =>
   Object.keys(row).find((key) => names.includes(normalized(row[key])));
 
-export function readProjectCosts(
-  bytes: Uint8Array,
-  projectId: string,
-): ProjectCostImport {
+export function readExcelWorkbook(bytes: Uint8Array) {
   if (bytes.byteLength > 12_000_000)
     throw new Error("אפשר לבחור קובץ Excel בגודל עד 12 מגה.");
   let size = 0;
@@ -70,10 +67,8 @@ export function readProjectCosts(
           .join(""),
       )
     : [];
-  function rowsFor(names: string[]) {
-    const sheet = nodes(workbook, "sheet").find((s) =>
-      names.includes(normalized(s.getAttribute("name") ?? "")),
-    );
+  const sheets = nodes(workbook, "sheet");
+  function rowsFor(sheet: Element | undefined) {
     if (!sheet) return [];
     const id = sheet.getAttribute("r:id");
     const path = relationships
@@ -105,6 +100,24 @@ export function readProjectCosts(
       return values;
     });
   }
+  return {
+    sheets: sheets.map((sheet) => ({
+      name: normalized(sheet.getAttribute("name") ?? ""),
+      rows: () => rowsFor(sheet),
+    })),
+    date1904: ["1", "true"].includes(
+      nodes(workbook, "workbookPr")[0]?.getAttribute("date1904") ?? "",
+    ),
+  };
+}
+
+export function readProjectCosts(
+  bytes: Uint8Array,
+  projectId: string,
+): ProjectCostImport {
+  const { sheets } = readExcelWorkbook(bytes);
+  const rowsFor = (names: string[]) =>
+    sheets.find((sheet) => names.includes(sheet.name))?.rows() ?? [];
   const costs: ProjectCost[] = [];
   const items: CostVarianceItem[] = [];
   let skipped = 0;

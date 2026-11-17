@@ -25,11 +25,10 @@ import OrganizationTasks from "./pages/OrganizationTasks";
 import OfficeContacts from "./pages/OfficeContacts";
 import CarReport from "./components/dashboard/CarReport";
 import Personal from "./components/dashboard/Personal";
-import { navigationPageTitle } from "./data/navigation";
+import { navigationPageTitle, projectModules } from "./data/navigation";
 import "./styles/motion.css";
 
 const navigationKey = "rassuly-navigation";
-const projectModules = ["data", "costs", "tasks", "protocols", "office"];
 type SavedNavigation = {
   workerId: string;
   ownerId: string;
@@ -127,7 +126,7 @@ export default function App() {
             ),
           );
           setModule(
-            projectModules.includes(saved.module) ? saved.module : "data",
+            Object.hasOwn(projectModules, saved.module) ? saved.module : "data",
           );
         } else if (saved && navigationPageTitle(saved.page, admin)) {
           setPage(saved.page);
