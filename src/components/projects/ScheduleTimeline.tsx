@@ -16,10 +16,10 @@ const scheduleDate = (value: string) => dateLabel.format(new Date(value));
 
 export default function ScheduleTimeline({
   schedule,
-  onShowTable,
+  onShowFile,
 }: {
   schedule: ProjectSchedule;
-  onShowTable: () => void;
+  onShowFile: () => void;
 }) {
   const today = todayInIsrael.format(new Date());
   const start = Date.parse(schedule.workOrderDate);
@@ -102,18 +102,17 @@ export default function ScheduleTimeline({
       <details className="schedule-gantt">
         <summary>
           לו״ז קבלן
-          {schedule.contractor &&
+          {!!schedule.contractor?.activities.length &&
             ` · ${schedule.contractor.activities.length} פעילויות`}
         </summary>
         {schedule.contractor ? (
           <>
             <div className="my-3 flex flex-wrap items-center justify-between gap-2.5">
-              <span className="muted">{schedule.contractor.filename}</span>
-              <button type="button" onClick={onShowTable}>
-                הצגה בטבלה
+              <button type="button" onClick={onShowFile}>
+                צפייה בקובץ · {schedule.contractor.filename}
               </button>
             </div>
-            {!hasRange && (
+            {!hasRange && !!schedule.contractor.activities.length && (
               <p className="muted">
                 הזן מועדי חוזה כדי לראות את הפעילויות על הציר.
               </p>

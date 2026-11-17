@@ -138,3 +138,11 @@
   border-radius: 4px;
   background: #257b84;
 }
+.schedule-pdf-preview {
+  display: block;
+  width: 100%;
+  height: min(60dvh, 660px);
+  margin-block: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}

@@ -172,6 +172,7 @@ export default function ProjectWorkspace({
         {module === "schedule" && (
           <ProjectSchedule
             key={p.id}
+            projectId={p.id}
             value={p.schedule}
             onSave={(schedule) => onProjectSave({ ...p, schedule })}
           />

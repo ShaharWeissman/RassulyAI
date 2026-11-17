@@ -36,6 +36,7 @@ export interface ProjectSchedule {
   handoverDate: string;
   contractor?: {
     filename: string;
+    original?: { path: string; contentType: string };
     activities: { name: string; start: string; end: string }[];
   };
 }
