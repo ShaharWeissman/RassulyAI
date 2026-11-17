@@ -64,7 +64,7 @@ export default function ProjectSchedule({
               className="primary"
               onClick={() => open("import")}
             >
-              <Icon name="file" size={17} /> העלאת קובץ מזורז סקריפט/לו״ז
+              <Icon name="file" size={17} /> העלה לוחות זמנים - קבלן
             </button>
             <button type="button" onClick={() => open("edit")}>
               <Icon name="edit" size={17} /> עריכת נתוני פרויקט
